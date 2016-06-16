@@ -44,7 +44,7 @@ Start : Thu Jun 16 10:54:12 BST 2016
 -------------------------------------------------------------------
 
 
-ORASID                : ecnrdev1
+ORASID                : db1
 BACKUP_TYPE           : ARCHIVELOGS_ONLY
 RMAN_PROCESSES        : 4
 BASE_DIR              : /u01/db_backup
