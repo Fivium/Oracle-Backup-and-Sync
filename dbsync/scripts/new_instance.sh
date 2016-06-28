@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: //Infrastructure/Database/scripts/dbsync/scripts/new_instance.sh#2 $
+# $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/scripts/new_instance.sh#2 $
 #
 # T Dale 2014-02-11
 # 
@@ -34,6 +34,7 @@ FRA_SIZE=$5
 TEMPLATE_PATH=$6
 DB_BACKUP_PATH=$7
 PLACEHOLDER_SID='__ORACLE_SID__'
+HOSTNAME=`hostname`
 
 SMON="smon_$ORACLE_SID"
 TEST=`ps -ef |grep $SMON|grep -v grep|wc -l`
@@ -73,7 +74,7 @@ fi
 #
 # New config file
 #
-CONFIG_FILE="$TEMPLATE_PATH/`hostname`_${ORACLE_SID}.sh"
+CONFIG_FILE="$TEMPLATE_PATH/${HOSTNAME}_${ORACLE_SID}.sh"
 if [ -f "$CONFIG_FILE" ]; then
     echo "Config file $CONFIG_FILE alread exists, please delete if you want to run this auto add"
     exit 4;
@@ -81,7 +82,13 @@ fi
 
 echo "Create config file $CONFIG_FILE from template $CONFIG_TEMPLATE"
 cp "$CONFIG_TEMPLATE" "$CONFIG_FILE"
+#
+# Replacements for config file
+#
 replace_placeholder '__DB_BACKUP_PATH__' $DB_BACKUP_PATH $CONFIG_FILE
+replace_placeholder '__DB_NAME__'  $DB_NAME $CONFIG_FILE
+replace_placeholder '__STANDBY_SID__'  $ORACLE_SID $CONFIG_FILE
+replace_placeholder '__HOSTNAME__'  $HOSTNAME $CONFIG_FILE
 #
 # Copy over init.ora template
 #
