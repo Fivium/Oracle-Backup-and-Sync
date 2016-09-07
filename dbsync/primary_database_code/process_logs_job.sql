@@ -1,5 +1,5 @@
 --
--- $Id: //Infrastructure/Database/scripts/dbsync/database_code/process_logs_job.sql#1 $
+-- $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/primary_database_code/process_logs_job.sql#1 $
 --
 SET SERVEROUTPUT ON
 DECLARE

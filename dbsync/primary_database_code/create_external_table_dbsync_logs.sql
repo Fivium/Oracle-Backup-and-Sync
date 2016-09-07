@@ -1,7 +1,7 @@
 --
--- $Id$
+-- $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/primary_database_code/create_external_table_dbsync_logs.sql#2 $
 --
-create or replace directory DBAMGR.DBSYNC_LOGS_1 as '/u01/db_backup/dbsync/logs/edu-dbdg1.berrdev.uk__edust1'
+CREATE OR REPLACE DIRECTORY DBSYNC_LOGS_1 as '/u01/db_backup/dbsync/logs/<host>__<standby_sid>'
 /
 CREATE TABLE DBAMGR.DBSYNC_LOGS_1
 (
@@ -25,7 +25,7 @@ ORGANIZATION EXTERNAL
     )
      LOCATION (DBSYNC_LOGS_1:'dbsync_details.txt')
   )
-REJECT LIMIT 100
+REJECT LIMIT 10000
 NOPARALLEL
 NOMONITORING
 /

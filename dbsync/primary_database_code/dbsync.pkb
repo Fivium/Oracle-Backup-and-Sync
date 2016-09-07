@@ -2,7 +2,7 @@ CREATE OR REPLACE PACKAGE BODY DBAMGR.dbsync
 --
 -- T Dale 2014-02-10
 --
--- $Id: //Infrastructure/Database/scripts/dbsync/database_code/dbsync.pkb#2 $
+-- $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/primary_database_code/dbsync.pkb#2 $
 AS
   SUBTYPE str_type IS VARCHAR2(30);
   
@@ -436,7 +436,7 @@ AS
         
             IF l_master_recs_updated > 0 THEN
         
-              p( '-- Master records updated       : ' || l_master_recs_updated );
+              p( '-- Master records updated      : ' || l_master_recs_updated );
               --
               -- Find out the standby lag
               --
@@ -453,8 +453,8 @@ AS
                 standby_id = l_standby_id;
 
 
-              p( '-- Standby applied until        : ' || TO_CHAR( l_standby_applied_details.until_date, 'DD-Mon-YYYY HH24:mi:ss') ); 
-              p( '-- Standby Last applied seq     : ' || l_log_details.last_applied_seq );          
+              p( '-- Standby applied until       : ' || TO_CHAR( l_standby_applied_details.until_date, 'DD-Mon-YYYY HH24:mi:ss') ); 
+              p( '-- Standby Last applied seq    : ' || l_log_details.last_applied_seq );          
               --
               -- Save in history
               --
