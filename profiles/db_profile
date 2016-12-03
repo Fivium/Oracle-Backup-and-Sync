@@ -1,0 +1,6 @@
+#!/bin/bash
+# $Id: //Infrastructure/Database/scripts/profiles/db_profile#2 $
+export ORAENV_ASK=NO
+export ORACLE_SID=$1
+. /usr/local/bin/oraenv
+. $HOME/profiles/profile_confirm
