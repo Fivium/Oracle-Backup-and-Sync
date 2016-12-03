@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# $Id: //Infrastructure/Database/scripts/profiles/sql#2 $
+#
+# By : Tom Dale 09-09-2007
+
+#
+# Check smon is up
+#
+export SMON="smon_$ORACLE_SID"
+TEST=`ps -ef |grep $SMON|grep -v grep|wc -l`
+SCRIPT_PATH="$HOME/profiles"
+
+if [ "$TEST" = 0 ]; then
+    echo "SMON : $SMON is NOT running..."
+    export START_SQL=''
+    sqlplus / as sysdba
+else
+    echo "Looks like $SMON is running..."
+    #
+    # Want to run the correct start sql
+    #
+    if [ "$ORACLE_SID" = "+ASM" ]; then
+        export START_SQL="$SCRIPT_PATH/start_asm"
+    else
+        export START_SQL="$SCRIPT_PATH/start"
+    fi
+    sqlplus / as sysdba @$START_SQL
+fi
