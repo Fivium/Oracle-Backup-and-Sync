@@ -1,0 +1,8 @@
+#!/bin/bash
+# $Id: //Infrastructure/Database/scripts/profiles/profile_confirm#2 $
+echo "--------------------------------------------"
+echo "ORACLE_HOME : $ORACLE_HOME"
+echo "ORACLE_SID  : $ORACLE_SID"
+echo "PATH        : $PATH"
+echo "--------------------------------------------"
+
