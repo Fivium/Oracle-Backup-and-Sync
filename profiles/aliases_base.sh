@@ -12,7 +12,8 @@ alias sqlplus='rlwrap -i -c -f $PROFILE_DIR/sqlplus.dict sqlplus'
 alias rman='rlwrap -i -c -f $PROFILE_DIR/rman.dict $ORACLE_HOME/bin/rman'
 alias rmanc='rlwrap -i -c -f $PROFILE_DIR/rman.dict $ORACLE_HOME/bin/rman target=/'
 alias lsnrs='lsnrctl status'
-alias pl='clear;$PROFILE_DIR/create_db_aliases.pl;$HOME/db_aliases.sh'
+#alias pl='clear;$PROFILE_DIR/create_db_aliases.pl;$HOME/db_aliases.sh'
+alias pl='. ~/.bash_profile'
 echo "--"
 echo "--"
 echo "Aliases :"
