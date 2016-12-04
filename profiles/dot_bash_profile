@@ -5,6 +5,7 @@ if [ -f ~/.bashrc ]; then
         . ~/.bashrc
 fi
 
+clear
 # User specific environment and startup programs
 ORACLE_BASE=/u01/app/oracle
 $HOME/profiles/create_db_aliases.pl
