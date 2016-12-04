@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # $Id: //Infrastructure/GitHub/Database/backup_and_sync/backup_scripts/oracle_log_purge.sh#1 $
 #
