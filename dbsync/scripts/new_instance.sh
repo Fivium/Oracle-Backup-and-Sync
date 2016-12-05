@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/scripts/new_instance.sh#2 $
 #
