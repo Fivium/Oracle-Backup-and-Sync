@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # $Id: //Infrastructure/Database/scripts/dbsync/scripts/dbsync.sh#5 $
 #
