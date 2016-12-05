@@ -56,6 +56,14 @@ fi
 PATH=$ORACLE_HOME/bin:$PATH
 export PATH
 #
+# Check for spfile
+#
+SPFILE_ORA="$ORACLE_HOME/dbs/spfile${ORACLE_SID}.ora"
+if [ -f "$SPFILE_ORA" ]; then
+    echo "File $SPFILE_ORA already exists, please delete if this is the correct sid"
+    exit 3;
+fi
+#
 # Check for init.ora
 #
 INIT_ORA="$ORACLE_HOME/dbs/init${ORACLE_SID}.ora"
