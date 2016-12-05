@@ -29,7 +29,7 @@ db1_standby db1 300M 300M 30G \
 
 ###Run backup on primary with syncing on
 ```
-[oracle@<PRIMARY> ~]$ /oracle/fra/backups/scripts/backup_db_wrapper.sh /oracle/fra/backups <PRIMARY_SID> FULL_BACKUP 1 SYNC <STANDBY_SERVER>
+[oracle@<PRIMARY> ~]$ /home/oracle/backups/scripts/db_backup.sh -s <SID> -b /home/oracle/backups -t FULL_BACKUP -p 1 -c NOCOMPRESS -r WHOLE_BACKUP -y <STANDBY_SERVER>
 ```
 ###Standby build
 ```
