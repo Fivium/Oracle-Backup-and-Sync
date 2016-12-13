@@ -1,10 +1,31 @@
-#!/bin/bash
+#!/bin/sh
 #
-# $Id: //Infrastructure/GitHub/Database/backup_and_sync/backup_scripts/db_backup.sh#1 $
+# $Id: //Infrastructure/GitHub/Database/backup_and_sync/backup_scripts/db_backup.sh#2 $
 #
 # Backup the database
 # - Work out the parameters and run the rman backup
 #
+
+#
+# Exit if backup already running
+#
+function set_current_secs {
+     local __return_val=$1
+     local __current_secs=$(date +%s)
+     eval $__return_val="'$__current_secs'"
+}
+
+set_current_secs START_SECS
+
+RUNNING=`ps -ef | grep "$0" | grep -v grep | wc -l`
+
+if [ $RUNNING -gt 2 ]
+then
+    echo "`ps -ef | grep $0 | grep -v grep`"
+    echo "Running count : $RUNNING, Script $0 is running, time to exit!"
+    exit 1
+fi
+
 NW='NOWHERE'
 COMP='COMPRESS'
 NOCOMP='NOCOMPRESS'
@@ -102,7 +123,6 @@ if [ -z "$FOR_STANDBY"           ]; then FOR_STANDBY="$FOR_STANDBY_DEFAULT";    
 #
 # Work out what compression is needed
 #
-echo "compress $COMPRESS"
 
 case $COMPRESS in
     RMAN)       RMAN_COMPRESS="$COMP"
@@ -117,7 +137,6 @@ esac
 #
 # What type of rsync
 #
-echo "sync action $SYNC_ACTION"
 
 case $SYNC_ACTION in
     NOSYNC)       BACKUP_SYNC="$NOSYNC"
@@ -131,45 +150,107 @@ case $SYNC_ACTION in
                   POST_COMPRESS_RSYNC="$SYNC"   ;;
 esac
 
+
+
 SERVER_NAME=`hostname`
-LOGFILE_START="$BASE_DIR/logs/backup_${SERVER_NAME}_${ORASID}"
+LOGFILE_DIR="$BASE_DIR/logs"
+#
+# Check directory exist
+#
+if [ ! -d "$BASE_DIR" ]; then
+    echo "BASE DIR does not exist : $BASE_DIR"
+    exit 12
+fi
+if [ ! -d "$LOGFILE_DIR" ]; then
+    echo "LOGFILE DIR does not exist : LOGFILE_DIR"
+    exit 13
+fi
+
+
+LOGFILE_START="$LOGFILE_DIR/backup_${SERVER_NAME}_${ORASID}"
 DATE_STR=`date +'%Y_%m_%d'`
 LOGFILE="${LOGFILE_START}_${BACKUP_TYPE}_${DATE_STR}.log"
 EMAIL_FILE="${LOGFILE_START}_EMAIL.txt"
-BACKUP_ARGS="$ORASID $BACKUP_TYPE $RMAN_PROCESSES $BASE_DIR $DEL $FOR_STANDBY $BACKUP_SYNC $SYNC_TO $RMAN_COMPRESS $SYNC_TO_DIR"
+BACKUP_ARGS="$ORASID $BACKUP_TYPE $RMAN_PROCESSES $BASE_DIR $DEL $FOR_STANDBY $RMAN_COMPRESS"
 
-echo ""
-echo "ORASID                : $ORASID"
-echo "BACKUP_TYPE           : $BACKUP_TYPE"
-echo "RMAN_PROCESSES        : $RMAN_PROCESSES"
-echo "BASE_DIR              : $BASE_DIR"
-echo "DEL                   : $DEL"
-echo "FOR_STANDBY           : $FOR_STANDBY"
-echo "SYNC BACKUP           : $BACKUP_SYNC"
-echo "SYNC_TO               : $SYNC_TO"
-echo "SYNC_TO_DIR           : $SYNC_TO_DIR"
-echo "SYNC_TO_2             : $SYNC_TO_2"
-echo "SYNC_TO_DIR_2         : $SYNC_TO_DIR_2"
-echo "RMAN COMPRESSION      : $RMAN_COMPRESS"
-echo "POST_COMPRESS         : $POST_COMPRESS"
-echo "POST_COMPRESS_THREADS : $ZIP_THREADS"
-echo "POST_RM_FILE_AGE_DAYS : $POST_RM_FILE_AGE_DAYS"
-echo "POST_COMPRESS_RSYNC   : $POST_COMPRESS_RSYNC"
-echo ""
-echo "Backup Args           : $BACKUP_ARGS"
-echo ""
-echo "Logging to            : $LOGFILE"
-echo ""
+HOSTNAME=`hostname`
+UPPER_SID=`echo $ORASID | tr  "[:lower:]" "[:upper:]"`
+BACKUP_DIR="${BASE_DIR}/files/${UPPER_SID}/${HOSTNAME}"
+
+#
+# Display to stfout and log
+#
+function log {
+    echo "$1" | tee -a $LOGFILE 
+}
+function log2 {
+    log ""
+    log "$1"
+    log ""
+}
+function log3 {
+    LINE='-------------------------------------------------------------------'
+    log ""
+    log "$LINE"
+    log2 "$1"
+    log "$LINE"
+    log ""
+}
+function show_elapsed_time {
+    set_current_secs CURRENT_SECS
+    ELSPSED_SECS=$(( $CURRENT_SECS - $START_SECS ))
+    log2 "Total Elapsed Seconds : $ELSPSED_SECS"
+}
+function show_section_elapsed_time {
+    set_current_secs CURRENT_SECS
+    SECTION_START_SEC="$1"
+    SECTION_NAME="$2"
+
+    ELSPSED_SECS=$(( $CURRENT_SECS - $SECTION_START_SEC ))
+    log2 "Elapsed : $ELSPSED_SECS secs for $SECTION_NAME"
+}
+DATE=`date`
+log3 "Start : $DATE"
+
+log ""
+log "ORASID                : $ORASID"
+log "BACKUP_TYPE           : $BACKUP_TYPE"
+log "RMAN_PROCESSES        : $RMAN_PROCESSES"
+log "BASE_DIR              : $BASE_DIR"
+log "BACKUP_DIR            : $BACKUP_DIR"
+log "DEL                   : $DEL"
+log "FOR_STANDBY           : $FOR_STANDBY"
+log "SYNC_ACTION           : $SYNC_ACTION"
+log "SYNC BACKUP           : $BACKUP_SYNC"
+log "SYNC_TO               : $SYNC_TO"
+log "SYNC_TO_DIR           : $SYNC_TO_DIR"
+log "SYNC_TO_2             : $SYNC_TO_2"
+log "SYNC_TO_DIR_2         : $SYNC_TO_DIR_2"
+log "RMAN COMPRESSION      : $RMAN_COMPRESS"
+log "POST_COMPRESS         : $POST_COMPRESS"
+log "POST_COMPRESS_THREADS : $ZIP_THREADS"
+log "POST_RM_FILE_AGE_DAYS : $POST_RM_FILE_AGE_DAYS"
+log "POST_COMPRESS_RSYNC   : $POST_COMPRESS_RSYNC"
+log ""
+log "Backup Args           : $BACKUP_ARGS"
+log ""
+log "Logging to            : $LOGFILE"
+log ""
 
 #
 # Run the rman script
 #
-$BASE_DIR/scripts/rman_backup.sh $BACKUP_ARGS > $LOGFILE 2>&1
+set_current_secs BEFORE_RMAN_SECS
+$BASE_DIR/scripts/rman_backup.sh $BACKUP_ARGS >> $LOGFILE 2>&1
+show_section_elapsed_time $BEFORE_RMAN_SECS "RMAN Backup"
 #
 # Was there a problem?
 # - then exit
 #
-
+if [ $? -ne 0 ]; then
+    echo "Problem Running rman backup script"
+    exit 1
+fi
 #
 # Purge logs on full backup
 #
@@ -184,21 +265,64 @@ echo "Delete old logfiles" >> $LOGFILE
 find $BASE_DIR/logs/ -wholename "$LOGIFLE_START*" -mtime +1 -print -delete >> $LOGFILE 2>&1
 
 #
+# Are we rsyncing the rman backup?
+#
+if [ "$BACKUP_SYNC" = "$SYNC" ]; then
+    log ""
+    log "Full backup dir rsync"
+    log ""
+    log "SYNC destination 1"
+
+    if [ -d "$BACKUP_DIR" ] && [ -n "$SYNC_TO" ] && [ -n "$SYNC_TO_DIR" ] && [ "$SYNC_TO_DIR" != "NOWHERE" ] && [ "$SYNC_TO" != "NOWHERE" ]
+    then
+        set_current_secs BEFORE_SYNC_SECS
+        log "Sync $BACKUP_DIR to $SYNC_TO:$SYNC_TO_DIR"
+        rsync -av $BACKUP_DIR/* $SYNC_TO:$SYNC_TO_DIR >> $LOGFILE 2>&1
+        show_section_elapsed_time $BEFORE_SYNC_SECS "RSYNC to $SYNC_TO:$SYNC_TO_DIR"
+    else
+        log3 "Sync Arg Error - from dir : $BACKUP_DIR - Sync to : $SYNC_TO - Sync to dir : $SYNC_TO_DIR"
+        exit 5
+    fi
+
+    log ""
+    log "SYNC destination 2"
+
+    if [ -d "$BACKUP_DIR" ] && [ -n "$SYNC_TO_2" ] && [ -n "$SYNC_TO_DIR_2" ] && [ "$SYNC_TO_DIR_2" != "NOWHERE" ] && [ "$SYNC_TO_2" != "NOWHERE" ]
+    then
+        set_current_secs BEFORE_SYNC_SECS
+        log "Sync $BACKUP_DIR to $SYNC_TO_2:$SYNC_TO_DIR_2"
+        rsync -av $BACKUP_DIR/* $SYNC_TO_2:$SYNC_TO_DIR_2 >> $LOGFILE 2>&1
+        show_section_elapsed_time $BEFORE_SYNC_SECS "RSYNC to $SYNC_TO_2:$SYNC_TO_DIR_2"
+    else
+        log "No second sync needed - second sync to : $SYNC_TO_2 - second sync to dir : $SYNC_TO_DIR_2"
+    fi
+
+fi
+#
 # Post backup compress?
 #
 if [ "$POST_COMPRESS" = "$COMP" ]; then
     UPPER_SID=`echo $ORASID | tr  "[:lower:]" "[:upper:]"`
     BACKUP_DIR="${BASE_DIR}/files/${UPPER_SID}/${HOSTNAME}"
     BACKUP_FILES="${BACKUP_DIR}/*"
-    ZIPS_DIR="${BASE_DIR}/files/zips"
+    ZIPS_DIR="${BASE_DIR}/files/zips"    
     TARFILE_NAME_BASE="backup_${SERVER_NAME}_${ORASID}"
     DATE_STR=`date +'%Y_%m_%d_%H_%M_%S'`    
     TARFILE="${ZIPS_DIR}/${TARFILE_NAME_BASE}_${BACKUP_TYPE}_${DATE_STR}.tgz"
     
-    echo "" 
-    echo "Parallel zip of : $BACKUP_FILES"
-    echo "             to : $TARFILE"
-    echo ""
+   
+    
+    log "" 
+    log "Parallel zip of : $BACKUP_FILES"
+    log "             to : $TARFILE"
+    log ""
+    #
+    #
+    #
+    if [ ! -d "$ZIPS_DIR" ]; then
+         log3 "No directory to put the tar zip, looking for : $ZIPS_DIR"
+         exit 65
+    fi
     #
     # Check pigs is install
     #
@@ -207,7 +331,11 @@ if [ "$POST_COMPRESS" = "$COMP" ]; then
         #
         # Zip in parallel
         #
-        tar -I pigz -cf $TARFILE $BACKUP_FILES --remove-files 
+        log2 "pigz installed : $PIGS_INSTALLED, running tar with pigz compression"
+        set_current_secs BEFORE_PIGZ_SECS
+        tar -I pigz -cf $TARFILE $BACKUP_FILES --remove-files >> $LOGFILE 2>&1
+        show_section_elapsed_time $BEFORE_PIGZ_SECS "PIGZ compress of $BACKUP_FILES to $TARFILE"
+        ls -ltrh $TARFILE
         #
         # Success?
         #
@@ -217,27 +345,25 @@ if [ "$POST_COMPRESS" = "$COMP" ]; then
                 #
                 # Housekeeping
                 #
-                echo ""
-                echo "Housekeep old zips"
-                echo "Look in      : $ZIPS_DIR"
-                echo "Files like   : $TARFILE_NAME_BASE"
-                echo "Days to keep : $POST_RM_FILE_AGE_DAYS"
-                echo ""
-                find $ZIPS_DIR -name "${TARFILE_NAME}*.tgz" -type f -mtime "+${POST_RM_FILE_AGE_DAYS}" -print -delete
+                log ""
+                log "Housekeep old zips"
+                log "Look in      : $ZIPS_DIR"
+                log "Files like   : $TARFILE_NAME_BASE"
+                log "Days to keep : $POST_RM_FILE_AGE_DAYS"
+                log ""
+                find $ZIPS_DIR -name "${TARFILE_NAME}*.tgz" -type f -mtime "+${POST_RM_FILE_AGE_DAYS}" -print -delete >> $LOGFILE 2>&1
             fi
 
         else
             #
             # Delete old
             #
-            echo ""
-            echo "Tar zip failed!"
+            log3 "Tar zip failed!"
             exit 66
 
         fi
     else
-        echo ""
-        echo "No pigz installed!"
+        log3 "No pigz installed!"
         exit 77
     fi
     #
@@ -248,31 +374,34 @@ if [ "$POST_COMPRESS" = "$COMP" ]; then
         # Got somewhere to put it?
         #
         if [ -n "$SYNC_TO" ] && [ -n "$SYNC_TO_DIR" ] && [ "$SYNC_TO" != "$NW"  ] && [ "$SYNC_TO_DIR" != "$NW" ]; then
-            echo ""
-            echo "Sync : $TARFILE"
-            echo "  to : $SYNC_TO:$SYNC_TO_DIR"
-            echo ""
-            rsync -av $TARFILE $SYNC_TO:$SYNC_TO_DIR
+            log ""
+            log "Sync : $TARFILE"
+            log "  to : $SYNC_TO:$SYNC_TO_DIR"
+            log ""
+            set_current_secs BEFORE_SYNC_SECS
+            rsync -av $TARFILE $SYNC_TO:$SYNC_TO_DIR >> $LOGFILE 2>&1
+            show_section_elapsed_time $BEFORE_SYNC_SECS "RSYNC"
         else
-            echo "" 
-            echo "Nowhere to sync backup too! - No server or no dir given"
-            echo ""
+            log3 "Nowhere to sync backup too! - No server or no dir given"
             exit 5
         fi
         #
         # Second sync location?
         #
         if [ -n "$SYNC_TO" ] && [ -n "$SYNC_TO_DIR" ] && [ "$SYNC_TO_2" != "$NW"  ] && [ "$SYNC_TO_DIR_2" != "$NW" ]; then
-            echo ""
-            echo "Sync : $TARFILE"
-            echo "  to : $SYNC_TO_2:$SYNC_TO_DIR_2"
-            echo ""            
-            rsync -av $TARFILE $SYNC_TO_2:$SYNC_TO_DIR_2
+            log ""
+            log "Sync : $TARFILE"
+            log "  to : $SYNC_TO_2:$SYNC_TO_DIR_2"
+            log ""            
+            set_current_secs BEFORE_SYNC_SECS
+            rsync -av $TARFILE $SYNC_TO_2:$SYNC_TO_DIR_2 >> $LOGFILE 2>&1
+            show_section_elapsed_time $BEFORE_SYNC_SECS "RSYNC"
         else
-            echo "" 
-            echo "No sync 2 or not configured correctly"
-            echo ""
-            exit 5
+            log2 "No sync 2 or not configured correctly"
         fi        
     fi
 fi
+
+show_elapsed_time
+DATE=`date`
+log3 "End : $DATE"
