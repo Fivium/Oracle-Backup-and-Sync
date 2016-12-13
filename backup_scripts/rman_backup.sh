@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 #
-# $Id: //Infrastructure/GitHub/Database/backup_and_sync/backup_scripts/rman_backup.sh#1 $
+# $Id: //Infrastructure/GitHub/Database/backup_and_sync/backup_scripts/rman_backup.sh#3 $
 #
 # T Dale
 #
@@ -16,10 +16,10 @@ SYNC='SYNC'
 NOSYNC='NOSYNC'
 COMPRESS='COMPRESS'
 NOCOMPRESS='NOCOMPRESS'
-ARGS=10
+ARGS=7
 
 RMAN_POC_STR='NUMBER OF RMAN PROCESSES'
-SCRIPT_ERROR_STR="ERROR - Syntax : $0 <ORACLE_SID> <$FULL|$ARCH> <$RMAN_POC_STR> <BACKUP DIR BASE PATH> <$DEL_ALL_BEFORE|$DEL_OBSOLETE> <$FOR_STANDBY|$NOT_FOR_STANDBY> <$SYNC|$NOSYNC> <SYNC_TO_ADDR> <COMPRESS|NOCOMPRESS> <SYNC_TO_DIR>"
+SCRIPT_ERROR_STR="ERROR - Syntax : $0 <ORACLE_SID> <$FULL|$ARCH> <$RMAN_POC_STR> <BACKUP DIR BASE PATH> <$DEL_ALL_BEFORE|$DEL_OBSOLETE> <$FOR_STANDBY|$NOT_FOR_STANDBY> <COMPRESS|NOCOMPRESS>"
 #
 # Params provides
 #
@@ -43,10 +43,7 @@ echo "RMAN Processes : $RMAN_PROCESSES"
 echo "Base path      : $BASE_PATH"
 echo "Delete Policy  : $DEL_POLICY"
 echo "For standby    : $STANDBY"
-echo "rsync backup   : $SYNC_NOSYNC"
-echo "Sync to        : $SYNC_TO"
 echo "Compression    : $COMPRESSION"
-echo "Sync to dir    : $SYNC_TO_DIR"
 echo ""
 
 
@@ -68,7 +65,7 @@ fi
 
 if [ $# -ne $ARGS ]
 then
-    echo "Expected $ARGS args get $#"
+    echo "Expected $ARGS args got $#"
     echo $SCRIPT_ERROR_STR
     exit 1
 fi
@@ -208,22 +205,3 @@ $ORACLE_HOME/bin/rman target=/ cmdfile=$RMAN_CMD_FILE
 # Just list the backup dir
 #
 ls -ltrh $BACKUP_DIR
-
-#
-# Sync backup?
-#
-if [ "$SYNC_NOSYNC" = "$SYNC" ]
-then
-    if [ -n "$SYNC_TO" ] && [ -n "$SYNC_TO_DIR" ] && [ "$SYNC_TO_DIR" != "NOWHERE" ] && [ "$SYNC_TO" != "NOWHERE" ]
-    then
-        echo "Sync $BACKUP_DIR to $SYNC_TO:$SYNC_TO_DIR"
-        rsync -av $BACKUP_DIR/* $SYNC_TO:$SYNC_TO_DIR
-    else
-        echo "Nowhere to sync backup too! - Sync to : $SYNC_TO - Sync to dir : $SYNC_TO_DIR"
-        echo $SCRIPT_ERROR_STR
-        exit 5
-    fi
-else
-    echo "No backup sync needed : $SYNC_NOSYNC"
-fi
-
