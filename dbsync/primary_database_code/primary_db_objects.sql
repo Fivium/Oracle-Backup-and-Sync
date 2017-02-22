@@ -3,7 +3,8 @@
 --
 -- $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/primary_database_code/primary_db_objects.sql#3 $
 --
-
+GRANT EXECUTE ON dbms_flashback TO dbamgr
+/
 CREATE SEQUENCE DBAMGR.DBSYNC_STANDBY_HIST_SEQ
   START WITH 1
   MAXVALUE 9999999999999999999999999999
