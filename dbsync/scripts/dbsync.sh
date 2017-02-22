@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: //Infrastructure/Database/scripts/dbsync/scripts/dbsync.sh#5 $
+# $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/scripts/dbsync.sh#6 $
 #
 # T Dale 2010-03-15
 # Auto restore or rollforward
@@ -81,7 +81,7 @@ EOF
         fi 
  
         if [ "$1" = "RMAN" ]; then
-            $ORACLE_HOME/bin/rman target=/ << EOF
+            $ORACLE_HOME/bin/rman target=/ log=$LOGFILE append << EOF
             $3
             $4
             $5
@@ -103,24 +103,29 @@ OPEN_NOOPEN=$5
 BACKUP_FILES_DIR=$6
 RESTORE_SCRIPTS_DIR=$7
 CONFIG_FILE=$8
-FRA_DIR=$9
-MULTIPLEX1_DIR=${10}
-MULTIPLEX2_DIR=${11}
-DROP_NODROP=${12}
-DB_FILE_CREATE_DIR=${13}
+DB_NAME=$9
+FRA_DIR=${10}
+MULTIPLEX1_DIR=${11}
+MULTIPLEX2_DIR=${12}
+DROP_NODROP=${13}
+DB_FILE_CREATE_DIR=${14}
+
+UPPER_DB_NAME=`echo $DB_NAME | tr  "[:lower:]" "[:upper:]"`
 #
 # Check cmd args
 #
-echo "Curent command : $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}"
-if [ "$FULL_ROLLFORWARD" = "ROLLFORWARD" ] && [ $# -ne 8 ]
+echo "Curent command : $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14}"
+if [ "$FULL_ROLLFORWARD" = "ROLLFORWARD" ] && [ $# -ne 9 ]
 then
     echo "ROLLFORWARD mode selected"
-    echo "$ERROR_STR - Syntax : $0 ORACLE_SID TEST|EXEC LOGFILE FULL|ROLLFORWARD OPEN|NOOPEN BACKUP_FILES_DIR RESTORE_SCRIPTS_DIR CONFIG_FILE"
+    echo "Arg count : $#"
+    echo "$ERROR_STR - Syntax : $0 ORACLE_SID TEST|EXEC LOGFILE FULL|ROLLFORWARD OPEN|NOOPEN BACKUP_FILES_DIR RESTORE_SCRIPTS_DIR CONFIG_FILE DB_NAME"
     exit 1
-elif [ "$FULL_ROLLFORWARD" = "FULL" ] && [ $# -ne 13 ]
+elif [ "$FULL_ROLLFORWARD" = "FULL" ] && [ $# -ne 14 ]
 then
     echo "FULL rebuild mode selected"
-    echo "$ERROR_STR - Syntax : $0 ORACLE_SID TEST|EXEC LOGFILE FULL|ROLLFORWARD OPEN|NOOPEN BACKUP_FILES_DIR RESTORE_SCRIPTS_DIR CONFIG_FILE FRA_DIR MULTIPLEX1_DIR MULTIPLEX2_DIR DROP|NODROP NEW_DATAFILE_DIR"
+    echo "Arg count : $#"
+    echo "$ERROR_STR - Syntax : $0 ORACLE_SID TEST|EXEC LOGFILE FULL|ROLLFORWARD OPEN|NOOPEN BACKUP_FILES_DIR RESTORE_SCRIPTS_DIR CONFIG_FILE DB_NAME FRA_DIR MULTIPLEX1_DIR MULTIPLEX2_DIR DROP|NODROP NEW_DATAFILE_DIR"
     exit 1
 fi
 
@@ -159,6 +164,7 @@ echo Basic settings
 echo $LINE
 echo "Config file         : $CONFIG_FILE"
 echo "Oracle SID          : $ORACLE_SID"
+echo "Database Name       : $DB_NAME"
 echo "Oracle Home         : $ORACLE_HOME"
 echo "Backup files dir    : $BACKUP_FILES_DIR"
 echo "DBsync script dir   : $RESTORE_SCRIPTS_DIR"
@@ -195,7 +201,7 @@ if [ "$FULL_ROLLFORWARD" = "FULL" ]; then
     # Find control file
     #
     CONTROL_FILE=`ls -ltr $BACKUP_FILES_DIR/*controlfile* | tail -n1 | awk {'print $9'}`
-    if [ -z "$CONTROL_FILE" ]; then echo "NO CONTROLFILE BACKUP : $BACKUP_DIR $ERROR_STR"; exit 1; fi
+    if [ -z "$CONTROL_FILE" ]; then echo "NO CONTROLFILE BACKUP : $BACKUP_DIR "; exit 5; fi
 
     if [ "$DROP_NODROP" = "DROP" ]; then
         #
@@ -287,7 +293,7 @@ fi
 #
 msg 'Catalog new backup in the controlfile'
 run 'RMAN' $TEST_EXEC \
-    "catalog start with '$BACKUP_FILES_DIR' noprompt;" \
+    "catalog start with '$BACKUP_FILES_DIR/$UPPER_DB_NAME' noprompt;" \
     "delete noprompt expired backup;"
 #
 # Generate the rman commands
