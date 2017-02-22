@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 #
-# $Id: //Infrastructure/Database/scripts/dbsync/scripts/dbsync_ctl.sh#6 $ 
+# $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/scripts/dbsync_ctl.sh#4 $ 
 #
 # T Dale 2014-01-31
 # Database sync controling script
@@ -16,7 +16,7 @@ UPPER_SID=`echo $1 | tr  "[:lower:]" "[:upper:]"`
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONFIG_FILE="$SCRIPTDIR/../config/`hostname`_$ORASID.sh"
 echo ""
-echo "Getting config from : $CONFIG_FILE"
+echo "Getting config from     : $CONFIG_FILE"
 
 if [ -f $CONFIG_FILE ]
 then
@@ -41,17 +41,34 @@ then
     exit 1
 fi
 
+if [ -z "$DB_NAME" ]
+then
+   echo "No databasename in config file!"
+   exit 66;
+fi
+
 GET_DATE_STR="date +%Y_%m_%d_%H_%M_%S"
 START_DATE=`$GET_DATE_STR`
 STANDBY_SERVER=`hostname`
+#
+# Make directory if its not there
+#
+if [ ! -d "$LOGFILE_DIR" ]; then
+    echo ""
+    echo "Making logfile directory : $LOGFILE_DIR";
+    echo ""
+    mkdir -p $LOGFILE_DIR
+fi
 
 LOGFILE_PREFIX="dbsync"
 LOGFILE_SUFFIX=".log"
 LOGFILE_BASENAME="${LOGFILE_PREFIX}__${STANDBY_SERVER}__${ORASID}__${FULL_ROLLFORWARD}__${START_DATE}${LOGFILE_SUFFIX}"
 LOGFILE="$LOGFILE_DIR/$LOGFILE_BASENAME"
-echo "Logging to          : $LOGFILE"
-echo "Start               : $START_DATE"
-echo "Backup files dir    : $BACKUP_FILES_DIR"
+
+echo "Logging to              : $LOGFILE"
+echo "Start                   : $START_DATE"
+echo "Backup files dir        : $BACKUP_FILES_DIR"
+echo "Database Name           : $DB_NAME"
 echo ""
 echo "Uncompress any tarballs"
 #
@@ -95,6 +112,7 @@ then
         $BACKUP_FILES_DIR \
         $RESTORE_SCRIPTS_DIR \
         $CONFIG_FILE \
+        $DB_NAME \
         $FRA_DIR \
         $MULTIPLEX1_DIR \
         $MULTIPLEX2_DIR \
@@ -110,19 +128,11 @@ then
         $OPEN_NOOPEN \
         $BACKUP_FILES_DIR \
         $RESTORE_SCRIPTS_DIR \
-        $CONFIG_FILE > $LOGFILE 2>&1
+        $CONFIG_FILE \
+        $DB_NAME > $LOGFILE 2>&1
 else
   echo "Error FULL or ROLLFORWARD mode must be selected"
 fi
-
-#
-# DB NAME 
-# - This is hack need todo properly
-# - Need to get this from the config file
-#
-SID_LENGTH=${#ORASID}
-DB_NAME_LENGTH=$(($SID_LENGTH-4))
-DB_NAME=${ORASID:0:DB_NAME_LENGTH}
 
 END_DATE=`$GET_DATE_STR`
 SYNC_LOG_DETAILS_FILE="${LOGFILE_DIR}/dbsync_details.txt"
@@ -168,6 +178,13 @@ then
     echo "-- DONT KNOW WHERE TO SYNC LOGS BACK TO?"
     echo "--"
 else
-    rsync -n -avz $LOGFILE_DIR/* oracle@$PRIMARY_HOST:$PRIMARY_LOGFILE_DIR
+    #
+    # Create logfile directory on primary
+    #
+    ssh oracle@$PRIMARY_HOST mkdir -p $PRIMARY_LOGFILE_DIR
+    #
+    # Sync files back
+    #
+    rsync -avz $LOGFILE_DIR/* oracle@$PRIMARY_HOST:$PRIMARY_LOGFILE_DIR
 fi
 
