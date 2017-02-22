@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 #
-# $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/scripts/new_instance.sh#2 $
+# $Id: //Infrastructure/GitHub/Database/backup_and_sync/dbsync/scripts/new_instance.sh#3 $
 #
 # T Dale 2014-02-11
 # 
@@ -44,7 +44,7 @@ if [ "$TEST" != 0 ]; then
     exit 1;
 fi
 #
-# Need an oratab entery
+# Need an oratab entry
 #
 ORATAB='/etc/oratab'
 export ORACLE_HOME=`cat $ORATAB|grep ^$ORACLE_SID:|cut -f2 -d':'`
@@ -55,14 +55,6 @@ fi
 
 PATH=$ORACLE_HOME/bin:$PATH
 export PATH
-#
-# Check for spfile
-#
-SPFILE_ORA="$ORACLE_HOME/dbs/spfile${ORACLE_SID}.ora"
-if [ -f "$SPFILE_ORA" ]; then
-    echo "File $SPFILE_ORA already exists, please delete if this is the correct sid"
-    exit 3;
-fi
 #
 # Check for init.ora
 #
@@ -96,7 +88,7 @@ cp "$CONFIG_TEMPLATE" "$CONFIG_FILE"
 replace_placeholder '__DB_BACKUP_PATH__' $DB_BACKUP_PATH $CONFIG_FILE
 replace_placeholder '__DB_NAME__'  $DB_NAME $CONFIG_FILE
 replace_placeholder '__STANDBY_SID__'  $ORACLE_SID $CONFIG_FILE
-replace_placeholder '__HOSTNAME__'  $HOSTNAME $CONFIG_FILE
+replace_placeholder '__STANDBY_HOST__'  $HOSTNAME $CONFIG_FILE
 #
 # Copy over init.ora template
 #
