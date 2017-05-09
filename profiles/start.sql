@@ -37,20 +37,22 @@ select systimestamp from dual;
 column start_scn format a16
 column NAME format a40
 
-select * from (
-  select
+SELECT * FROM(
+  SELECT
     sequence#
-  , to_char(first_change#) start_scn
+  , TO_CHAR(first_change#) start_scn
   , applied
-  , to_char(completion_time,'dd-mon-yyyy hh24:mi:ss') comp_time
-  , substr(name, instr(name,'/',-1)+1) name
-  from
-    v$archived_log
-  where
-    sequence# > ( select max(sequence#) from v$archived_log where applied = 'YES' ) - 5
-  order by
-    first_change# desc
+  , TO_CHAR(completion_time,'dd-mon-yyyy hh24:mi:ss') comp_time
+  , SUBSTR(name, instr(name,'/',-1)+1) name
+  FROM
+       v$archived_log al
+  WHERE
+      sequence# > ( SELECT MAX(sequence#)-5 max_sequence# FROM v$archived_log al JOIN (SELECT resetlogs_change# FROM v$database) dbd ON dbd.resetlogs_change# = al.resetlogs_change# WHERE applied = 'YES' )
+  AND resetlogs_change# = (SELECT resetlogs_change# FROM v$database)
+  ORDER BY
+    first_change# DESC
   , name
 )
-where rownum < 20;
+WHERE ROWNUM < 20;
+
 
