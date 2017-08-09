@@ -22,7 +22,11 @@ SELECT
   TO_CHAR(max(sequence#)+1)||
   ';' 
 FROM
-  v$backup_archivelog_details
+  ( 
+    SELECT sequence# FROM v$backup_archivelog_details
+    UNION
+    SELECT sequence# FROM v$archived_log
+  )
 /
 SELECT
      --
