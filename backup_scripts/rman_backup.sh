@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #
-# $Id: //Infrastructure/GitHub/Database/backup_and_sync/backup_scripts/rman_backup.sh#3 $
-#
 # T Dale
 #
 
@@ -29,10 +27,8 @@ RMAN_PROCESSES=$3
 BASE_PATH=$4
 DEL_POLICY=$5
 STANDBY=$6
-SYNC_NOSYNC=$7
-SYNC_TO=$8
-COMPRESSION=$9
-SYNC_TO_DIR=${10}
+COMPRESSION=$7
+
 LINE="--------------------"
 echo $LINE
 echo "Args provided"
