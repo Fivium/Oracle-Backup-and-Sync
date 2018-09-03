@@ -42,13 +42,14 @@ COMPRESS_DEFAULT='RMAN'
 ZIP_THREADS_DEFAULT='ALL'
 POST_RM_FILE_AGE_DAYS_DEFAULT='1'
 FOR_STANDBY_DEFAULT='NOT_FOR_STANDBY'
+SKIP_DEFAULT='FALSE'
 
 
 function show_help {
 
 cat << EOF
 
-Usage:  db_backup.sh -s DBNAME -b BACKUPDIR [ -t -p -d -r -y -z -g -h -c -a -k -e ] 
+Usage:  db_backup.sh -s DBNAME -b BACKUPDIR [ -t -p -d -r -y -z -g -h -c -a -k -e -m ] 
 
 -s : database sid you want to backup
 -b : base backup directory
@@ -64,6 +65,7 @@ Usage:  db_backup.sh -s DBNAME -b BACKUPDIR [ -t -p -d -r -y -z -g -h -c -a -k -
 -a : zip threads                     Options : any int                           Default : $ZIP_THREADS_DEFAULT
 -k : Days of zips to keep, not rman  Options : any int                           Default : $POST_RM_FILE_AGE_DAYS_DEFAULT
 -e : backup standby control file     Options : FOR_STANDBY|NOT_FOR_STANDBY       Default : $FOR_STANDBY_DEFAULT
+-m : skips backup for the instance   Options : TRUE|FALSE                        Default : $SKIP_DEFAULT
 
 eg : db_backup.sh -s DB1 -b /oracle/backups -t ARCHIVELOGS_ONLY -r POST_ZIP -y db2.local -z /oracle/backups/from_db1 -c ZIP
 --
@@ -79,9 +81,12 @@ exit 0
 
 }
 
+
+echo "default skip option:   $SKIP_DEFAULT"
+
 ## Option flags
 
-while getopts :s:b:t:p:d:r:y:z:g:h:c:a:k:e: option; do
+while getopts :s:b:t:p:d:r:y:z:g:h:c:a:k:e:m: option; do
 
     case $option in
         s) ORASID="$OPTARG"                ;;
@@ -98,6 +103,7 @@ while getopts :s:b:t:p:d:r:y:z:g:h:c:a:k:e: option; do
         a) ZIP_THREADS="$OPTARG"           ;;
         k) POST_RM_FILE_AGE_DAYS="$OPTARG" ;;
         e) FOR_STANDBY="$OPTARG"           ;;
+        m) SKIP="$OPTARG"                  ;;
         *) help="1"
            show_help                       ;;
     esac
@@ -119,6 +125,7 @@ if [ -z "$COMPRESS"              ]; then COMPRESS="$COMPRESS_DEFAULT";          
 if [ -z "$ZIP_THREADS"           ]; then ZIP_THREADS="$ZIP_THREADS_DEFAULT";                     fi
 if [ -z "$POST_RM_FILE_AGE_DAYS" ]; then POST_RM_FILE_AGE_DAYS="$POST_RM_FILE_AGE_DAYS_DEFAULT"; fi
 if [ -z "$FOR_STANDBY"           ]; then FOR_STANDBY="$FOR_STANDBY_DEFAULT";                     fi
+if [ -z "$SKIP"                  ]; then SKIP="$SKIP_DEFAULT";                                   fi
 
 #
 # Work out what compression is needed
@@ -171,7 +178,7 @@ LOGFILE_START="$LOGFILE_DIR/backup_${SERVER_NAME}_${ORASID}"
 DATE_STR=`date +'%Y_%m_%d'`
 LOGFILE="${LOGFILE_START}_${BACKUP_TYPE}_${DATE_STR}.log"
 EMAIL_FILE="${LOGFILE_START}_EMAIL.txt"
-BACKUP_ARGS="$ORASID $BACKUP_TYPE $RMAN_PROCESSES $BASE_DIR $DEL $FOR_STANDBY $RMAN_COMPRESS"
+BACKUP_ARGS="$ORASID $BACKUP_TYPE $RMAN_PROCESSES $BASE_DIR $DEL $FOR_STANDBY $RMAN_COMPRESS $SKIP"
 
 HOSTNAME=`hostname`
 UPPER_SID=`echo $ORASID | tr  "[:lower:]" "[:upper:]"`
@@ -231,6 +238,7 @@ log "POST_COMPRESS         : $POST_COMPRESS"
 log "POST_COMPRESS_THREADS : $ZIP_THREADS"
 log "POST_RM_FILE_AGE_DAYS : $POST_RM_FILE_AGE_DAYS"
 log "POST_COMPRESS_RSYNC   : $POST_COMPRESS_RSYNC"
+log "SKIPPING_BACKUP       : $SKIP"
 log ""
 log "Backup Args           : $BACKUP_ARGS"
 log ""
