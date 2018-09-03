@@ -14,10 +14,12 @@ SYNC='SYNC'
 NOSYNC='NOSYNC'
 COMPRESS='COMPRESS'
 NOCOMPRESS='NOCOMPRESS'
-ARGS=7
+SKIP_TRUE='TRUE'
+SKIP_FALSE='FALSE'
+ARGS=8
 
 RMAN_POC_STR='NUMBER OF RMAN PROCESSES'
-SCRIPT_ERROR_STR="ERROR - Syntax : $0 <ORACLE_SID> <$FULL|$ARCH> <$RMAN_POC_STR> <BACKUP DIR BASE PATH> <$DEL_ALL_BEFORE|$DEL_OBSOLETE> <$FOR_STANDBY|$NOT_FOR_STANDBY> <COMPRESS|NOCOMPRESS>"
+SCRIPT_ERROR_STR="ERROR - Syntax : $0 <ORACLE_SID> <$FULL|$ARCH> <$RMAN_POC_STR> <BACKUP DIR BASE PATH> <$DEL_ALL_BEFORE|$DEL_OBSOLETE> <$FOR_STANDBY|$NOT_FOR_STANDBY> <COMPRESS|NOCOMPRESS> <SKIP_BACKUP> $SKIP_TRUE | $SKIP_FALSE "
 #
 # Params provides
 #
@@ -28,6 +30,7 @@ BASE_PATH=$4
 DEL_POLICY=$5
 STANDBY=$6
 COMPRESSION=$7
+SKIP=$8
 
 LINE="--------------------"
 echo $LINE
@@ -40,6 +43,7 @@ echo "Base path      : $BASE_PATH"
 echo "Delete Policy  : $DEL_POLICY"
 echo "For standby    : $STANDBY"
 echo "Compression    : $COMPRESSION"
+echo "Skipping backup: $SKIP"
 echo ""
 
 
@@ -157,6 +161,8 @@ then
     DELETE_ARCH_STR="delete noprompt archivelog all;"
 fi
 
+
+
 if [ $BACKUP_TYPE = $ARCH ]
 then
     RMAN_CMD_FILE="${BASE_RMAN_CMD_FILE}_${ARCH}.rcv"
@@ -193,10 +199,21 @@ END_CMD
 
 fi
 
+
 #
-# Do the backup
+# Do the backup for dbs that does not have TRUE on the skip parameter
 #
+
+if [ $SKIP = $SKIP_TRUE ]
+then
+   echo "Skipping backup of :  $ORACLE_SID"
+   echo "Because aint nobody got time"
+
+else
+
 $ORACLE_HOME/bin/rman target=/ cmdfile=$RMAN_CMD_FILE
+
+fi
 #
 # Just list the backup dir
 #
