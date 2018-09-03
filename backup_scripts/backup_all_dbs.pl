@@ -141,6 +141,10 @@ while (my $row = <$fh>) {
                 # Backup
                 #
                 my $bk_cmd = "$backup_scripts_dir/db_backup.sh -s $sid -b $backups_base_dir -t $backup_type -p $rman_channels" . $zip_option_str . ' ' . $sync_to_str;
+
+
+
+
                 print "Running      : $bk_cmd\n\n";
                 print "Logs in      : $backups_base_dir/logs\n\n";
                 my $start = time;
@@ -186,7 +190,7 @@ sub config_option{
     $option = $xml_doc->findvalue( xpath( $sid, $element ) );
 
     if( $option ne '' ){ $option =  " -$option_when_found $option"; }
- 
+
     return $option;
 }
 
@@ -199,7 +203,7 @@ sub sync_options{
     $sync_str .= ' ' . config_option( $sid, 'sync_to_1_dir', $xml_doc, 'z' );
     $sync_str .= ' ' . config_option( $sid, 'sync_to_2'    , $xml_doc, 'g' );
     $sync_str .= ' ' . config_option( $sid, 'sync_to_2_dir', $xml_doc, 'h' );
+    $sync_str .= ' ' . config_option( $sid, 'skip', $xml_doc, 'm' );
 
     return $sync_str;
 };
-
