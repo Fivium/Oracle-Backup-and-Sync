@@ -93,7 +93,7 @@ BEGIN
 
            p(v_msg2);
            p('run{' );
-           p('set until sequence' || ' ' || v_msg+1 || ';');
+           p('set until sequence' || ' ' ||  TO_CHAR(TO_NUMBER(v_msg)+1) || ';');
 
 
 
