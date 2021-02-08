@@ -9,7 +9,6 @@ fi
 export ORACLE_SID=$1
 export ORACLE_HOME=`cat /etc/oratab|grep ^$ORACLE_SID:|cut -f2 -d':'`
 export PATH=$ORACLE_HOME/bin:$PATH
-
 #
 # List of current backup files
 #
@@ -35,7 +34,9 @@ do
   LAST_BACKUP_SIZE=$(( $LAST_BACKUP_SIZE+$BACKUP_FILE_SIZE_ON_DISK ))
   LAST_BACKUP_SIZE_COMPRESSED=$(( $LAST_BACKUP_SIZE_COMPRESSED+$BACKUP_FILE_SIZE_ON_DISK_COMPRESSED ))
 done
-
+#
+# Get the current size of the database
+#
 BACKUP_DIR=$2
 DATABASE_SIZE_BYTES=$(sqlplus -S / as sysdba << EOF
   set head off
@@ -58,11 +59,13 @@ then
   SPACE_REQUIRED="$LAST_BACKUP_SIZE_COMPRESSED"
 else
   #
-  # Check if there is enough room for the backup
+  # Check if there is enough room for the current size of the database
   #
   SPACE_REQUIRED="$DATABASE_SIZE_BYTES"
 fi
-
+# 
+# Safety buffer is 20%
+#
 BUFFER_SIZE=$(( ${SPACE_REQUIRED}*20/100 ))
 DEST_DIR=$BACKUP_DIR
 ## Get available space in DEST_DIR
