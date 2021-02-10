@@ -10,9 +10,11 @@ use Switch;
 sub fmt{
     my( $str, $color ) = @_;
     my $col_num;
-    switch ($color){
-        case 'red'   {$col_num=31;}
-        case 'green' {$col_num=32;}
+    
+    if($color eq 'red'){
+        $col_num=31;
+    }else{
+        $col_num=32;
     }
     return "\033[33;${col_num}m$str\033[0m";
 }
