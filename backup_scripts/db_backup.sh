@@ -244,7 +244,15 @@ log "Backup Args           : $BACKUP_ARGS"
 log ""
 log "Logging to            : $LOGFILE"
 log ""
-
+#
+# Check there is enough space for the backup
+#
+$BASE_DIR/scripts/enough_space.sh $ORASID $BASE_DIR
+RETURN_VAL=$?
+if [ $RETURN_VAL -ne 0 ]; then
+    echo "Not enough space"
+    exit 1
+fi
 #
 # Run the rman script
 #
