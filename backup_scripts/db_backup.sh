@@ -251,6 +251,7 @@ $BASE_DIR/scripts/enough_space.sh $ORASID $BASE_DIR
 RETURN_VAL=$?
 if [ $RETURN_VAL -ne 0 ]; then
     echo "Not enough space"
+    log "!!!NOT ENOUGH SPACE TO BACKUP TO!!!"
     exit 1
 fi
 #
