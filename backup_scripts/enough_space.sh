@@ -55,7 +55,7 @@ ARCHIVELOG_SIZE_BYTES=$(sqlplus -S / as sysdba << EOF
   set feedback off
   set pagesize 0
   set linesize 300
-  SELECT SUM(blocks*block_size) archivelogs_size_bytes FROM V\$archived_log l WHERE deleted = 'NO';
+  SELECT TO_CHAR(SUM(blocks*block_size)) archivelogs_size_bytes FROM V\$archived_log l WHERE deleted = 'NO';
   exit
 EOF
 )
