@@ -96,26 +96,42 @@ SPACE_AVAILABLE=$(df $DEST_DIR -B1 -P | awk '{print $2}' | sed -e /1-blocks/d)
 SPACE_REQUIRED_PLUS_BUFFER=$(( ${SPACE_REQUIRED_WITH_COMPRESSION}+${BUFFER_SIZE} ))
 DELTA=$(($SPACE_AVAILABLE-$SPACE_REQUIRED_PLUS_BUFFER))
 ## Details
+bytes_to_human_readable() {
+    local i=${1:-0} d="" s=0 S=("Bytes" "KiB" "MiB" "GiB" "TiB" "PiB" "EiB" "YiB" "ZiB")
+    while ((i > 1024 && s < ${#S[@]}-1)); do
+        printf -v d ".%02d" $((i % 1024 * 100 / 1024))
+        i=$((i / 1024))
+        s=$((s + 1))
+    done
+    SIZE_HR="$i$d ${S[$s]}"
+    printf "$2 %10s\n" "$SIZE_HR"
+}
+
+## Info
+
 echo "--------------------"
 echo "Database : "$ORACLE_SID
 echo "--------------------"
-echo "All sizes in bytes"
-printf "Last backup size on disk            : %16s\n" "$LAST_BACKUP_SIZE"
-printf "Last backup size on disk compressed : %16s\n" "$LAST_BACKUP_SIZE_COMPRESSED"
-printf "Last backup compression percent     : %16s\n" "$COMPRESSION_PERCENT"
-printf "Current database size               : %16s\n" "$DATABASE_SIZE_BYTES"
-printf "Archivelog size                     : %16s\n" "$ARCHIVELOG_SIZE_BYTES"
-printf "space required                      : %16s\n" "$SPACE_REQUIRED"
-printf "space required with compression     : %16s\n" "$SPACE_REQUIRED_WITH_COMPRESSION"
-printf "5 Percent buffer                    : %16s\n" "$BUFFER_SIZE"
-printf "space required with buffer          : %16s\n" "$SPACE_REQUIRED_PLUS_BUFFER"
-printf "space available                     : %16s\n" "$SPACE_AVAILABLE"
-printf "free space after backup             : %16s\n" "$DELTA"
+bytes_to_human_readable $LAST_BACKUP_SIZE                "Last backup size on disk            : "
+bytes_to_human_readable $LAST_BACKUP_SIZE_COMPRESSED     "Last backup size on disk compressed : "
+printf "Last backup compression percent     : %11s\n" "$COMPRESSION_PERCENT"
+bytes_to_human_readable $DATABASE_SIZE_BYTES             "Current database size               : "
+bytes_to_human_readable $ARCHIVELOG_SIZE_BYTES           "Archivelog size                     : "
+bytes_to_human_readable $SPACE_REQUIRED                  "Space required                      : "
+bytes_to_human_readable $SPACE_REQUIRED_WITH_COMPRESSION "Space required with compression     : "
+bytes_to_human_readable $BUFFER_SIZE                     "5 Percent buffer                    : "
+bytes_to_human_readable $SPACE_REQUIRED_PLUS_BUFFER      "Space required with buffer          : "
+bytes_to_human_readable $SPACE_AVAILABLE                 "Space available                     : "
+bytes_to_human_readable $DELTA                           "Free space after backup             : "
 ## Is there enough space available?
+echo "--------------------"
 if (( $DELTA > 0 )); then
     echo "Space is available"
+    echo "--------------------"
     exit 0
 else
-    echo "Space not available"
+    echo "Problem : Space NOT available"
+    echo "--------------------"
     exit 1
 fi
+
