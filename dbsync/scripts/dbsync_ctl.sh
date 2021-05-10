@@ -159,6 +159,12 @@ echo ""
 find "$LOGFILE_DIR" -name "DBSYNC_LOGS_*.log" -print -delete
 find "$LOGFILE_DIR" -name "sed*" -print -delete
 
+echo ""
+echo "Delete any corrupt archivelogs"
+echo ""
+
+grep -B 1 -i corrupted "$LOGFILE" | grep 'File Name' | awk '{print $3}' | sort -u | grep '.arc' | grep -v '.arc.gz' | xargs rm -v
+
 PRIMARY_LOGFILE_DIR="${PRIMARY_LOGFILE_BASE_DIR}/${STANDBY_SERVER}__${ORASID}"
 
 echo ""
