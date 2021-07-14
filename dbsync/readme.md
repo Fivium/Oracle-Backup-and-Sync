@@ -43,7 +43,7 @@ Check log file. It should end with no error and Recovery Manager complete.
 ### Test a rollforward
 ```
 Archivelog backup primary
-[oracle@<PRIMARY> ~]$ /oracle/fra/backups/scripts/backup_db_wrapper.sh /oracle/fra/backups <PRIMARY_SID> ARCHIVELOGS_ONLY 1 SYNC <STANDBY_SERVER> -z /home/oracle/backups/files/XE/
+[oracle@<PRIMARY> ~]$ /oracle/fra/backups/scripts/backup_db.sh /oracle/fra/backups <PRIMARY_SID> ARCHIVELOGS_ONLY 1 SYNC <STANDBY_SERVER> -z /home/oracle/backups/files/XE/
 ```
 Roll forward standby
 ```
