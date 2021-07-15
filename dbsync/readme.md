@@ -59,6 +59,5 @@ Roll forward standby
 ### Set primary to sync backups
 For example:
 ```
-44 18 * * * /oracle/fra/backups/scripts/backup_db_wrapper.sh /oracle/fra/backups db1 FULL_BACKUP 1 SYNC <STANDBY>
-5,25,45 8-17 * * * /oracle/fra/backups/scripts/backup_db_wrapper.sh /oracle/fra/backups db1 ARCHIVELOGS_ONLY 1 SYNC <STANDBY>
+5,25,45 8-17 * * * <ARCHIVELOG_BACKUP_AND_SYNC_CMD>
 ```
