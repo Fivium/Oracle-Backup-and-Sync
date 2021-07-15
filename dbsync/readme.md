@@ -31,7 +31,7 @@ db1_standby db1 300M 300M 30G \
 
 ### Run backup on primary with syncing on
 ```
-[oracle@<PRIMARY> ~]$ /home/oracle/backups/scripts/db_backup.sh -s <SID> -b /home/oracle/backups -t FULL_BACKUP -p 1 -c NOCOMPRESS -r WHOLE_BACKUP -y <STANDBY_SERVER> -z <STANDBY_BACKUP_DIR>
+[oracle@<PRIMARY> ~]$ /home/oracle/backups/scripts/db_backup.sh -s <SID> -b <BACKUP_DIR> -t FULL_BACKUP -p 1 -c NOCOMPRESS -r WHOLE_BACKUP -y <STANDBY_SERVER> -z <STANDBY_BACKUP_DIR>
 ```
 ### Standby build
 ```
@@ -43,7 +43,7 @@ Check log file. It should end with no error and Recovery Manager complete.
 ### Test a rollforward
 ```
 Archivelog backup primary
-[oracle@<PRIMARY> ~]$ /oracle/fra/backups/scripts/backup_db.sh /oracle/fra/backups <PRIMARY_SID> ARCHIVELOGS_ONLY 1 SYNC <STANDBY_SERVER> -z /home/oracle/backups/files/XE/
+[oracle@<PRIMARY> ~]$ /home/oracle/backups/scripts/db_backup.sh -s <SID> -b <BACKUP_DIR> -t ARCHIVELOGS_ONLY -p 1 -c NOCOMPRESS -r WHOLE_BACKUP -y <STANDBY_SERVER> -z <STANDBY_BACKUP_DIR>
 ```
 Roll forward standby
 ```
