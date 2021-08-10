@@ -5,6 +5,24 @@
 # T Dale 2014-01-31
 # Database sync controling script
 #
+
+#
+# Little sleep to avoid clashes
+#
+SLEEP_SECONDS=`shuf -i 0-7 -n 1`
+sleep $SLEEP_SECONDS
+#
+# Exit if already running
+#
+RUNNING=`ps -ef | grep "$0" | grep -v grep | wc -l`
+
+if [ $RUNNING -gt 2 ]
+then
+    echo "`ps -ef | grep $0 | grep -v grep`"
+    echo "Running count : $RUNNING, Script $0 is running, time to exit!"
+    exit 1
+fi
+
 ORASID=$1
 TEST_EXEC=$2
 FULL_ROLLFORWARD=$3
