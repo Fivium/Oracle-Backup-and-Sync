@@ -14,12 +14,12 @@ sleep $SLEEP_SECONDS
 #
 # Exit if already running
 #
-RUNNING=`ps -ef | grep "$0" | grep -v grep | wc -l`
+RUNNING=`ps -ef | grep "$0 $1" | grep -v grep | wc -l`
 
 if [ $RUNNING -gt 2 ]
 then
-    echo "`ps -ef | grep $0 | grep -v grep`"
-    echo "Running count : $RUNNING, Script $0 is running, time to exit!"
+    echo "`ps -ef | grep "$0 $1" | grep -v grep`"
+    echo "Running count : $RUNNING, Script $0 $1 is running, time to exit!"
     exit 1
 fi
 
