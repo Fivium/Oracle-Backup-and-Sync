@@ -317,10 +317,18 @@ msg 'Crosscheck backups'
 run 'RMAN' $TEST_EXEC \
     "crosscheck backup;"
 
-msg 'Remove missing files from catalog'
+msg 'Remove missing files from the catalog'
 run 'RMAN' $TEST_EXEC \
     "delete noprompt expired backup;"
-
+    
+msg 'Crosscheck archivelogs'
+run 'RMAN' $TEST_EXEC \
+    "crosscheck archivelog all;"
+    
+msg 'Remove missing archivelogs from the catalog'
+run 'RMAN' $TEST_EXEC \
+    "delete noprompt expired archivelog all;"
+    
 msg 'Delete obsolete backups'
 run 'RMAN' $TEST_EXEC \
     "delete noprompt obsolete;"
