@@ -48,6 +48,7 @@ function run {
     echo "CMD Type  : $1"
     echo "TEST|EXEC : $2"
     echo "CMD args  : $#"
+    echo "Start     : `date`"
     echo "$3"
     if [ -n "$4" ]; then echo "$4"; fi
     if [ -n "$5" ]; then echo "$5"; fi
