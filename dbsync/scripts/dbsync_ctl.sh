@@ -7,11 +7,6 @@
 #
 
 #
-# Little sleep to avoid clashes
-#
-SLEEP_SECONDS=`shuf -i 0-7 -n 1`
-sleep $SLEEP_SECONDS
-#
 # Exit if already running
 #
 RUNNING=`ps -ef | grep "$0 $1" | grep -v grep | wc -l`
