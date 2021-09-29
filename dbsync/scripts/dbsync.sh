@@ -306,7 +306,7 @@ run 'RMAN' $TEST_EXEC \
 msg 'Generate the rman commands'
 run 'SQL' 'EXEC' "@$RESTORE_SCRIPTS_DIR/gen_rman_cmds.sql $FULL_ROLLFORWARD $OPEN_NOOPEN $NEW_DATAFILE_DIR $RMAN_CMD_FILE"
 #
-# Restore database
+# run the rman script
 #
 msg 'Restore the database, then recover up latest redo'
 run 'OS' $TEST_EXEC \
