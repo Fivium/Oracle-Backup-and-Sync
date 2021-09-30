@@ -311,26 +311,31 @@ run 'SQL' 'EXEC' "@$RESTORE_SCRIPTS_DIR/gen_rman_cmds.sql $FULL_ROLLFORWARD $OPE
 msg 'Restore the database, then recover up latest redo'
 run 'OS' $TEST_EXEC \
     "$ORACLE_HOME/bin/rman target=/ cmdfile=$RMAN_CMD_FILE log=$LOGFILE append"
-#
-# Tidy up backup files not needed
-#
-msg 'Crosscheck backups'
-run 'RMAN' $TEST_EXEC \
-    "crosscheck backup;"
+    
+if [ "$RMAN_TIDY_UP" = "RMAN_TIDY_UP" ]
+then
+    #
+    # Tidy up backup files not needed
+    #
+    msg 'Crosscheck backups'
+    run 'RMAN' $TEST_EXEC \
+        "crosscheck backup;"
 
-msg 'Remove missing files from the catalog'
-run 'RMAN' $TEST_EXEC \
-    "delete noprompt expired backup;"
+    msg 'Remove missing files from the catalog'
+    run 'RMAN' $TEST_EXEC \
+        "delete noprompt expired backup;"
     
-msg 'Crosscheck archivelogs'
-run 'RMAN' $TEST_EXEC \
-    "crosscheck archivelog all;"
+    msg 'Crosscheck archivelogs'
+    run 'RMAN' $TEST_EXEC \
+        "crosscheck archivelog all;"
     
-msg 'Remove missing archivelogs from the catalog'
-run 'RMAN' $TEST_EXEC \
-    "delete noprompt expired archivelog all;"
+    msg 'Remove missing archivelogs from the catalog'
+    run 'RMAN' $TEST_EXEC \
+        "delete noprompt expired archivelog all;"
     
-msg 'Delete obsolete backups'
-run 'RMAN' $TEST_EXEC \
-    "delete noprompt obsolete;"
+    msg 'Delete obsolete backups'
+    run 'RMAN' $TEST_EXEC \
+        "delete noprompt obsolete;"
+        
+fi
 
