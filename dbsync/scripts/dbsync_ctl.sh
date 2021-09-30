@@ -159,7 +159,8 @@ then
         $BACKUP_FILES_DIR \
         $RESTORE_SCRIPTS_DIR \
         $CONFIG_FILE \
-        $DB_NAME > $LOGFILE 2>&1
+        $DB_NAME \
+        $RMAN_TIDY_UP > $LOGFILE 2>&1
 else
   echo "Error FULL or ROLLFORWARD mode must be selected"
 fi
