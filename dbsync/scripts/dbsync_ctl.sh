@@ -37,7 +37,6 @@ then
 else
     echo "ERROR - Can't find config file $CONFIG_FILE"
     exit 1
-
 fi
 #
 # Check cmd args
@@ -82,12 +81,24 @@ LOGFILE="$LOGFILE_DIR/$LOGFILE_BASENAME"
 #
 LOGFILE_DAY_BASENAME=${LOGFILE_BASENAME::-13}
 DBSYNC_DAY_RUN_COUNT=`find "${LOGFILE_DIR}" -name "${LOGFILE_DAY_BASENAME}*" | wc -l`
+#
+# First run of the day?
+#
+if [[ "$DBSYNC_DAY_RUN_COUNT" -eq 1 ]]; then
+    #
+    # We want to do the rman tidy up 
+    #
+    RMAN_TIDY_UP='RMAN_TIDY_UP'
+else
+    RMAN_TIDY_UP='NO_RMAN_TIDY_UP'
+fi
 
 echo "Logging to              : $LOGFILE"
 echo "Start                   : $START_DATE"
 echo "Backup files dir        : $BACKUP_FILES_DIR"
 echo "Database Name           : $DB_NAME"
 echo "DBSYNC Day run count    : $DBSYNC_DAY_RUN_COUNT"
+echo "RMAN Tidy up            : $RMAN_TIDY_UP"
 echo ""
 echo "Uncompress any tarballs"
 #
