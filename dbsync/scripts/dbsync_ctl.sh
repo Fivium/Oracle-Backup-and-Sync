@@ -77,11 +77,17 @@ LOGFILE_PREFIX="dbsync"
 LOGFILE_SUFFIX=".log"
 LOGFILE_BASENAME="${LOGFILE_PREFIX}__${STANDBY_SERVER}__${ORASID}__${FULL_ROLLFORWARD}__${START_DATE}${LOGFILE_SUFFIX}"
 LOGFILE="$LOGFILE_DIR/$LOGFILE_BASENAME"
+#
+# How many times has this been run today?
+#
+LOGFILE_DAY_BASENAME=${LOGFILE_BASENAME::-13}
+DBSYNC_DAY_RUN_COUNT=`find "${LOGFILE_DIR}" -name "${LOGFILE_DAY_BASENAME}*" | wc -l`
 
 echo "Logging to              : $LOGFILE"
 echo "Start                   : $START_DATE"
 echo "Backup files dir        : $BACKUP_FILES_DIR"
 echo "Database Name           : $DB_NAME"
+echo "DBSYNC Day run count    : $DBSYNC_DAY_RUN_COUNT"
 echo ""
 echo "Uncompress any tarballs"
 #
