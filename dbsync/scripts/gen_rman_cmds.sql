@@ -35,10 +35,7 @@ BEGIN
         select min (a.sequence#) sequence#, min (b.checkpoint_change#) from v$archived_log a, v$datafile b
         where b.checkpoint_change# between first_change# and next_change# and rownum <=1 group by a.sequence#
         );
-
-
-
-   --
+  --
   -- What can we apply too
   --
   SELECT
@@ -68,55 +65,42 @@ BEGIN
       SELECT sequence# FROM v$archived_log
     );
 
-
+  p('#');
   p('# Last applied log sequence : '||l_database_last_log_applied);
   p('# We can apply to           : '||l_log_sequence_we_can_apply);
   p('# Last in the catalog       : '||l_max_cataloged_sequence);
-  p('#==================================================#');
+  p('# ==============================================================');
 
   CASE
     WHEN  l_max_cataloged_sequence > l_log_sequence_we_can_apply THEN
-                v_msg := l_log_sequence_we_can_apply;
-                v_msg2 := '#Gaps in archivelog detected. Maximum sequence without gaps to be applied';
+    
+      v_msg := l_log_sequence_we_can_apply;
+      v_msg2 := '# GAPS IN ARCHIVELOGS DETECTED. Maximum sequence without gaps to be applied';
+      p(v_msg2);
+      p('run{' );
+      p('set until sequence' || ' ' || v_msg || ';');
 
-           p(v_msg2);
-           p('run{' );
-           p('set until sequence' || ' ' || v_msg || ';');
+    WHEN l_log_sequence_we_can_apply = l_log_sequence_we_can_apply THEN
+    
+      v_msg := l_max_cataloged_sequence;
+      v_msg2 := '# No lag detected latest archivelog recovery to be applied';
+      p(v_msg2);
+      p('run{' );
+      p('set until sequence' || ' ' ||  TO_CHAR(TO_NUMBER(v_msg)+1) || ';');
 
-
-
-
-
-        WHEN l_log_sequence_we_can_apply = l_log_sequence_we_can_apply THEN
-                v_msg := l_max_cataloged_sequence;
-                v_msg2 := '#No lag detected latest archivelog recovery to be applied';
-
-           p(v_msg2);
-           p('run{' );
-           p('set until sequence' || ' ' ||  TO_CHAR(TO_NUMBER(v_msg)+1) || ';');
-
-
-
-
-
-        WHEN  l_log_sequence_we_can_apply is NULL THEN
-                l_log_sequence_we_can_apply_n := COALESCE (l_log_sequence_we_can_apply,l_database_last_log_applied);
-                v_msg := l_log_sequence_we_can_apply_n;
-                v_msg2 := '#Cannot find valid archivelog to proceed';
-
-          p(v_msg2);
-          p('run{' );
-          p('set until sequence' || ' ' || v_msg || ';');
-
+    WHEN  l_log_sequence_we_can_apply IS NULL THEN
+    
+     l_log_sequence_we_can_apply_n := COALESCE (l_log_sequence_we_can_apply,l_database_last_log_applied);
+     v_msg := l_log_sequence_we_can_apply_n;
+     v_msg2 := '#Cannot find valid archivelog to proceed';		
+     p(v_msg2);
+     p('run{' );
+     p('set until sequence' || ' ' || v_msg || ';');
 
   END CASE;
 
-
 END;
-
 /
-
-
 SELECT
      --
      -- Create new file names and path
