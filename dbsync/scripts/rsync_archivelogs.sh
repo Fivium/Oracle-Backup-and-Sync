@@ -1,15 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
-#
-# rsync the archivelogs
 # - this is better than doing it via backup
-# - add parameter db 
+# - add parameter db
 #     archive_lag_target = 180 ( for 3 minute max lag )
-# - add crontab 
+# - add crontab
 #     * * * * * <SCRIPT_DIR>/rsync_archivelogs.sh
 #
+echo "Rsync files"
 
-LOG_TO_FILE='<LOG_FILE>'
+LOG_TO_FILE='<LOG_DIR>/rsync_achivelogs.log'
+CERT_LOCATION='<CERT_FILE>'
 
 function log_timestamp {
     echo " " >> "$LOG_TO_FILE"
@@ -17,7 +17,17 @@ function log_timestamp {
     echo " " >> "$LOG_TO_FILE"
 }
 
-log_timestamp
+COPY_TO_SERVER='<STANDBY_SERVER>'
+
+function do_rsync {
+
+    echo "syncing files from $1 to ${COPY_TO_SERVER}:${2}" >> "$LOG_TO_FILE"
+
+    rsync -av -e "ssh -i ${CERT_LOCATION}" --update --progress $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
+
+    log_timestamp
+
+}
 #
 # Exit if backup already running
 #
@@ -30,27 +40,19 @@ then
     exit 1
 fi
 
-
-COPY_TO_SERVER='<REMOTE_SERVER>'
-
+log_timestamp
 #
 # Sync archivelogs
 #
-FILES_TO_COPY='<FRA_DIR>/archivelog/*'
-COPY_TO_DIR='<REMOTE_BACKUP_DIR>'
-
-echo "syncing files from $FILES_TO_COPY to ${COPY_TO_SERVER}:${COPY_TO_DIR}" >> "$LOG_TO_FILE"
-rsync -av -e "ssh -i <CERT_LOCATION>" --update $FILES_TO_COPY $COPY_TO_SERVER:$COPY_TO_DIR >> $LOG_TO_FILE 2>&1
-
-#
-# Sync backups of archivelogs
-#
-FILES_TO_COPY='<BACKUP_DIR>/<SID>_backup_archivelogs_*'
-echo "syncing files from $FILES_TO_COPY to ${COPY_TO_SERVER}:${COPY_TO_DIR}" >> "$LOG_TO_FILE"
-rsync -av -e "ssh -i /home/oracle/.ssh/ecase-aws-oracle.pem" --update $FILES_TO_COPY $COPY_TO_SERVER:$COPY_TO_DIR >> $LOG_TO_FILE 2>&1
+SYNC_TO_DIR='<REMOTE_BACKUP_DIR>'
+do_rsync '<FRA_PATH>/archivelog/*' "$SYNC_TO_DIR"
+do_rsync '<BACKUP_PATH>/<SID>_backup_archivelogs_*' "$SYNC_TO_DIR"
 
 log_timestamp
 
+#
+# Trim logfile
+#
 TEMP_LOG_FILE="$LOG_TO_FILE.head"
 head -n 1000 "$LOG_TO_FILE" > "$TEMP_LOG_FILE"
 mv "$TEMP_LOG_FILE" "$LOG_TO_FILE"
