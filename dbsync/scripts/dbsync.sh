@@ -288,7 +288,15 @@ if [ "$FULL_ROLLFORWARD" = "FULL" ]; then
     msg 'Move the tempfile and redo to new instance locations'
     run 'SQL' $TEST_EXEC \ "@$RESTORE_SCRIPTS_DIR/move_files.sql $TEST_EXEC $LOGFILE_DIR1 $LOGFILE_DIR2 $NEW_DATAFILE_DIR"
 fi
-
+#
+# Open read only?
+# - then Bounce to mount first
+# - since db is probably open read only now
+#
+if [ "$OPEN_NOOPEN" = 'OPEN_READ_ONLY' ]; then
+    run 'SQL' $TEST_EXEC "shutdown abort;"
+    run 'SQL' $TEST_EXEC "startup mount;"
+fi
 #
 # Catalog the new backup
 #
