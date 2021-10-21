@@ -23,7 +23,7 @@ function do_rsync {
 
     echo "syncing files from $1 to ${COPY_TO_SERVER}:${2}" >> "$LOG_TO_FILE"
 
-    rsync -av -e "ssh -i ${CERT_LOCATION}" --update --progress $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
+    rsync -av -e "ssh -i ${CERT_LOCATION}" --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
 
     log_timestamp
 
@@ -53,6 +53,6 @@ log_timestamp
 #
 # Trim logfile
 #
-TEMP_LOG_FILE="$LOG_TO_FILE.head"
-head -n 1000 "$LOG_TO_FILE" > "$TEMP_LOG_FILE"
+TEMP_LOG_FILE="$LOG_TO_FILE.tail"
+tail -n 1000 "$LOG_TO_FILE" > "$TEMP_LOG_FILE"
 mv "$TEMP_LOG_FILE" "$LOG_TO_FILE"
