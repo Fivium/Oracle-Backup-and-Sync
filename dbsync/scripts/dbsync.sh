@@ -116,7 +116,10 @@ UPPER_DB_NAME=`echo $DB_NAME | tr  "[:lower:]" "[:upper:]"`
 # Check cmd args
 #
 echo "Curent command : $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14}"
-if [ "$FULL_ROLLFORWARD" = "ROLLFORWARD" ] && [ $# -ne 9 ]
+if [ "$FULL_ROLLFORWARD" = "ROLLFORWARD" ] && [ $# -eq 10 ]
+then
+    RMAN_TIDYUP=${10}
+elif [ "$FULL_ROLLFORWARD" = "ROLLFORWARD" ] && [ $# -ne 10 ]
 then
     echo "ROLLFORWARD mode selected"
     echo "Arg count : $#"
