@@ -30,11 +30,20 @@ BEGIN
   --
   -- Current applied log
   --
-
-     select sequence# INTO l_database_last_log_applied from (
-        select min (a.sequence#) sequence#, min (b.checkpoint_change#) from v$archived_log a, v$datafile b
-        where b.checkpoint_change# between first_change# and next_change# and rownum <=1 group by a.sequence#
-        );
+  SELECT
+    sequence# INTO l_database_last_log_applied 
+  FROM (
+    SELECT
+      min (a.sequence#) sequence#, 
+      min (b.checkpoint_change#) 
+    FROM 
+      v$archived_log a, 
+      v$datafile     b
+    WHERE
+      b.checkpoint_change# BETWEEN first_change# AND next_change# AND ROWNUM <=1 
+    GROUP BY
+      a.sequence#
+  );
   --
   -- What can we apply too
   --
@@ -48,7 +57,15 @@ BEGIN
         (
           SELECT sequence# FROM v$backup_archivelog_details
           UNION
-          SELECT sequence# FROM v$archived_log WHERE status = 'A'
+          (
+            SELECT
+                 sequence#
+            FROM
+                 v$archived_log a
+            JOIN v$database     d ON d.activation# = a.activation#
+            WHERE
+                status = 'A'
+          )
         )
       CONNECT BY sequence# = PRIOR sequence#+1
       START WITH sequence# = l_database_last_log_applied
