@@ -79,7 +79,15 @@ BEGIN
     (
       SELECT sequence# FROM v$backup_archivelog_details
       UNION
-      SELECT sequence# FROM v$archived_log
+        (
+          SELECT
+               sequence#
+          FROM
+               v$archived_log a
+          JOIN v$database     d ON d.activation# = a.activation#
+          WHERE
+              status = 'A'
+        )
     );
 
   p('#');
