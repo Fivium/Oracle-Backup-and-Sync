@@ -23,7 +23,8 @@ function do_rsync {
 
     echo "syncing files from $1 to ${COPY_TO_SERVER}:${2}" >> "$LOG_TO_FILE"
 
-    DAY_STR=`date +"%a %b %d"`
+    DATE_STR=`date`
+    DAY_STR=${DATE_STR:0:10}
 
     DAY_RSYNC_RUN_COUNT=`grep "$DAY_STR" "$LOG_TO_FILE" | wc -l`
 
