@@ -40,8 +40,6 @@ function do_rsync {
         rsync -av -e "ssh -i ${CERT_LOCATION}"                    --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
     fi
 
-    log_timestamp
-
 }
 #
 # Exit if backup already running
@@ -62,9 +60,6 @@ log_timestamp
 SYNC_TO_DIR='<REMOTE_BACKUP_DIR>'
 do_rsync '<FRA_PATH>/archivelog/*' "$SYNC_TO_DIR"
 do_rsync '<BACKUP_PATH>/<SID>_backup_archivelogs_*' "$SYNC_TO_DIR"
-
-log_timestamp
-
 #
 # Trim logfile
 #
