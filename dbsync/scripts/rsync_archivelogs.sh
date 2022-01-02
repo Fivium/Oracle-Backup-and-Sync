@@ -24,7 +24,7 @@ function do_rsync {
     echo "syncing files from $1 to ${COPY_TO_SERVER}:${2}" >> "$LOG_TO_FILE"
 
     DATE_STR=`date`
-    DAY_STR=${DATE_STR:0:10}
+    DAY_STR=${DATE_STR:0:7}
 
     DAY_RSYNC_RUN_COUNT=`grep "$DAY_STR" "$LOG_TO_FILE" | wc -l`
 
@@ -33,7 +33,7 @@ function do_rsync {
     # We want to do a checksum transfer
     # at the start of the day
     #
-    if [ "$DAY_RSYNC_RUN_COUNT" -lt "10" ]
+    if [ "$DAY_RSYNC_RUN_COUNT" -lt "2" ]
     then
         echo "RSYNC with checksum" >> "$LOG_TO_FILE"
         rsync -av -e "ssh -i ${CERT_LOCATION}" --checksum --stats --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
