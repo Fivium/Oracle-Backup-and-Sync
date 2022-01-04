@@ -10,10 +10,12 @@ echo "Rsync files"
 
 LOG_TO_FILE='<LOG_DIR>/rsync_achivelogs.log'
 CERT_LOCATION='<CERT_FILE>'
+DAY_STR=`date +%Y-%m-%d`
 
 function log_timestamp {
+    TIME_STR=`date +%H:%M:%S`
     echo " " >> "$LOG_TO_FILE"
-    echo `date` >> "$LOG_TO_FILE"
+    echo "$1 ${DAY_STR} ${TIME_STR}" >> "$LOG_TO_FILE"
     echo " " >> "$LOG_TO_FILE"
 }
 
@@ -21,19 +23,18 @@ COPY_TO_SERVER='<STANDBY_SERVER>'
 
 function do_rsync {
 
-    echo "syncing files from $1 to ${COPY_TO_SERVER}:${2}" >> "$LOG_TO_FILE"
+    DESC="syncing files from $1 to ${COPY_TO_SERVER}:${2}"
+    
+    echo "$DESC" >> "$LOG_TO_FILE"
 
-    DATE_STR=`date`
-    DAY_STR=${DATE_STR:0:7}
-
-    DAY_RSYNC_RUN_COUNT=`grep "$DAY_STR" "$LOG_TO_FILE" | wc -l`
+    DAY_RSYNC_RUN_COUNT=`grep "START $DAY_STR" "$LOG_TO_FILE" | wc -l`
 
     echo "RSYNC day run count : $DAY_RSYNC_RUN_COUNT" >> "$LOG_TO_FILE"
     #
     # We want to do a checksum transfer
     # at the start of the day
     #
-    if [ "$DAY_RSYNC_RUN_COUNT" -lt "2" ]
+    if [ "$DAY_RSYNC_RUN_COUNT" -eq "1" ]
     then
         echo "RSYNC with checksum" >> "$LOG_TO_FILE"
         rsync -av -e "ssh -i ${CERT_LOCATION}" --checksum --stats --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
@@ -41,6 +42,7 @@ function do_rsync {
         rsync -av -e "ssh -i ${CERT_LOCATION}"                    --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
     fi
 
+    log_timestamp "Finished $DESC"
 }
 #
 # Exit if backup already running
@@ -54,7 +56,7 @@ then
     exit 1
 fi
 
-log_timestamp
+log_timestamp START
 #
 # Sync archivelogs
 #
@@ -65,5 +67,5 @@ do_rsync '<BACKUP_PATH>/<SID>_backup_archivelogs_*' "$SYNC_TO_DIR"
 # Trim logfile
 #
 TEMP_LOG_FILE="$LOG_TO_FILE.tail"
-tail -n 1000 "$LOG_TO_FILE" > "$TEMP_LOG_FILE"
+tail -n 10000 "$LOG_TO_FILE" > "$TEMP_LOG_FILE"
 mv "$TEMP_LOG_FILE" "$LOG_TO_FILE"
