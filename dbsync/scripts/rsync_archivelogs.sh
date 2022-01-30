@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# - this is better than doing it via backup
-# - add parameter db
+# - This is better than doing it via backup
+# - Add parameter db
 #     archive_lag_target = 180 ( for 3 minute max lag )
-# - add crontab
+# - Add crontab
 #     * * * * * <SCRIPT_DIR>/rsync_archivelogs.sh
-#
+# - Set in RMAN ( this will keep a copy in the FRA for rsync to standby )
+#     CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DISK;
+
 echo "Rsync files"
 
 LOG_TO_FILE='<LOG_DIR>/rsync_achivelogs.log'
