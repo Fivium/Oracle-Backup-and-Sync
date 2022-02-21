@@ -42,7 +42,8 @@ GetOptions (
 #
 my $full_bk  = 'FULL_BACKUP';
 my $archives = 'ARCHIVELOGS_ONLY';
-my $usage    = "USAGE : backup_all_dbs.ph --type <$full_bk|$archives> --rman_channels <INT> --base_dir <Base backup dir>\n\n";
+my $crosscheck = 'CROSSCHECK';
+my $usage    = "USAGE : backup_all_dbs.ph --type <$full_bk|$archives|$crosscheck> --rman_channels <INT> --base_dir <Base backup dir>\n\n";
 
 my $datestring = localtime();
 print "Started at $datestring\n";
@@ -54,13 +55,12 @@ if( !-d $backups_base_dir or $backups_base_dir eq '' ){
     exit 1;
 }
 
-
 print "Backup type             : $backup_type\n";
 
-if( $backup_type ne $full_bk and $backup_type ne $archives or $backup_type eq '' ){ 
-    print "\ntype not in $full_bk or $archives\n\n"; 
+if( $backup_type ne $full_bk and $backup_type ne $archives or $backup_type eq '' ){
+    print "\ntype not in $full_bk , $archives or $crosscheck\n\n";
     print $usage;
-    exit 2; 
+    exit 2;
 }
 
 print "RMAN Channels           : $rman_channels\n";
