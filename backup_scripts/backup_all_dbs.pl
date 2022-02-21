@@ -57,7 +57,7 @@ if( !-d $backups_base_dir or $backups_base_dir eq '' ){
 
 print "Backup type             : $backup_type\n";
 
-if( $backup_type ne $full_bk and $backup_type ne $archives or $backup_type eq '' ){
+if( $backup_type ne $full_bk and $backup_type ne $archives and $backup_type ne $crosscheck or $backup_type eq '' ){
     print "\ntype not in $full_bk , $archives or $crosscheck\n\n";
     print $usage;
     exit 2;
