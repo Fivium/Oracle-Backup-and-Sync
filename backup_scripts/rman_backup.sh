@@ -92,7 +92,7 @@ else
     exit 3
 fi
 
-if [ "$BACKUP_TYPE" = "$ARCH" ]||[ "$BACKUP_TYPE" = "$FULL" ]
+if [ "$BACKUP_TYPE" = "$ARCH" ]||[ "$BACKUP_TYPE" = "$FULL" ]||[ "$BACKUP_TYPE" = "$CROSSCHECK" ]
 then
     echo "Backup Type pass"
 else
