@@ -43,7 +43,7 @@ GetOptions (
 my $full_bk  = 'FULL_BACKUP';
 my $archives = 'ARCHIVELOGS_ONLY';
 my $crosscheck = 'CROSSCHECK';
-my $usage    = "USAGE : backup_all_dbs.ph --type <$full_bk|$archives|$crosscheck> --rman_channels <INT> --base_dir <Base backup dir>\n\n";
+my $usage    = "USAGE : backup_all_dbs.pl --type <$full_bk|$archives|$crosscheck> --rman_channels <INT> --base_dir <Base backup dir>\n\n";
 
 my $datestring = localtime();
 print "Started at $datestring\n";
