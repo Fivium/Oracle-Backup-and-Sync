@@ -44,7 +44,6 @@ POST_RM_FILE_AGE_DAYS_DEFAULT='1'
 FOR_STANDBY_DEFAULT='NOT_FOR_STANDBY'
 SKIP_DEFAULT='FALSE'
 
-
 function show_help {
 
 cat << EOF
@@ -80,7 +79,6 @@ EOF
 exit 0
 
 }
-
 
 echo "default skip option:   $SKIP_DEFAULT"
 
@@ -173,7 +171,6 @@ if [ ! -d "$LOGFILE_DIR" ]; then
     exit 13
 fi
 
-
 LOGFILE_START="$LOGFILE_DIR/backup_${SERVER_NAME}_${ORASID}"
 DATE_STR=`date +'%Y_%m_%d'`
 LOGFILE="${LOGFILE_START}_${BACKUP_TYPE}_${DATE_STR}.log"
@@ -244,15 +241,18 @@ log "Backup Args           : $BACKUP_ARGS"
 log ""
 log "Logging to            : $LOGFILE"
 log ""
-#
-# Check there is enough space for the backup
-#
-$BASE_DIR/scripts/enough_space.sh $ORASID $BASE_DIR
-RETURN_VAL=$?
-if [ $RETURN_VAL -ne 0 ]; then
-    echo "Not enough space"
-    log "!!!NOT ENOUGH SPACE TO BACKUP TO!!!"
-    exit 1
+
+if [ "$BACKUP_TYPE" != "CROSSCHECK" ]; then
+    #
+    # Check there is enough space for the backup
+    #
+    $BASE_DIR/scripts/enough_space.sh $ORASID $BASE_DIR
+    RETURN_VAL=$?
+    if [ $RETURN_VAL -ne 0 ]; then
+        echo "Not enough space"
+        log "!!!NOT ENOUGH SPACE TO BACKUP TO!!!"
+        exit 1
+    fi
 fi
 #
 # Run the rman script
