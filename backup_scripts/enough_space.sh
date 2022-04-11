@@ -74,7 +74,7 @@ else
   #
   # assume no compression
   #
-  COMPRESSION_PERCENT=100
+  COMPRESSION_PERCENT=20
 fi
 #
 # Check if there is enough room for the current size of the database
