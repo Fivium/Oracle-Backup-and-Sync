@@ -82,7 +82,7 @@ EOF
         fi 
  
         if [ "$1" = "RMAN" ]; then
-            $ORACLE_HOME/bin/rman target=/ log=$LOGFILE append << EOF
+            $ORACLE_HOME/bin/rman target=/ << EOF
             $3
             $4
             $5
