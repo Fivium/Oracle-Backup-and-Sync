@@ -97,14 +97,22 @@ SPACE_REQUIRED_PLUS_BUFFER=$(( ${SPACE_REQUIRED_WITH_COMPRESSION}+${BUFFER_SIZE}
 DELTA=$(($SPACE_AVAILABLE-$SPACE_REQUIRED_PLUS_BUFFER))
 ## Details
 bytes_to_human_readable() {
-    local i=${1:-0} d="" s=0 S=("Bytes" "KiB" "MiB" "GiB" "TiB" "PiB" "EiB" "YiB" "ZiB")
+
+    local neg_sym='' i=${1:-0} d="" s=0 S=("Bytes" "KiB" "MiB" "GiB" "TiB" "PiB" "EiB" "YiB" "ZiB")
+
+    if (( i < 0 )); then
+        i=$(($1 * -1))
+        neg_sym='-'
+    fi
+
     while ((i > 1024 && s < ${#S[@]}-1)); do
         printf -v d ".%02d" $((i % 1024 * 100 / 1024))
         i=$((i / 1024))
         s=$((s + 1))
     done
-    SIZE_HR="$i$d ${S[$s]}"
+    SIZE_HR="$neg_sym$i$d ${S[$s]}"
     printf "$2 %10s\n" "$SIZE_HR"
+
 }
 
 ## Info
