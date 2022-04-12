@@ -62,20 +62,26 @@ EOF
 #
 # Do we have a last backup on the filesystem to use for space check?
 #
-if [ "$LAST_BACKUP_SIZE_COMPRESSED" -gt 0 ]
-then
+#if [ "$LAST_BACKUP_SIZE_COMPRESSED" -gt 0 ]
+#then
   #
   # Use the compressed file system size to work out expected compression
   # if its uncompressed, this value will also be correct
   #
-  COMPRESSION_PERCENT=$(( ${LAST_BACKUP_SIZE_COMPRESSED}*100/${LAST_BACKUP_SIZE} ))
+#  COMPRESSION_PERCENT=$(( ${LAST_BACKUP_SIZE_COMPRESSED}*100/${LAST_BACKUP_SIZE} ))
 
-else
+#else
   #
-  # assume no compression
+  # Set to a guess
   #
-  COMPRESSION_PERCENT=20
-fi
+  #COMPRESSION_PERCENT=20
+#fi
+
+#
+# Just set a default, best guess
+#
+COMPRESSION_PERCENT=30
+
 #
 # Check if there is enough room for the current size of the database
 # and archivelogs
