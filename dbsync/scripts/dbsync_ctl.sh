@@ -84,14 +84,15 @@ DBSYNC_DAY_RUN_COUNT=`find "${LOGFILE_DIR}" -name "${LOGFILE_DAY_BASENAME}*" | w
 #
 # First run of the day?
 #
-if [[ "$DBSYNC_DAY_RUN_COUNT" -eq 1 ]]; then
-    #
-    # We want to do the rman tidy up 
-    #
-    RMAN_TIDY_UP='RMAN_TIDY_UP'
-else
-    RMAN_TIDY_UP='NO_RMAN_TIDY_UP'
-fi
+#if [[ "$DBSYNC_DAY_RUN_COUNT" -eq 1 ]]; then
+#    RMAN_TIDY_UP='RMAN_TIDY_UP'
+#else
+#    RMAN_TIDY_UP='NO_RMAN_TIDY_UP'
+#fi
+#
+# Do this in another script now
+#
+RMAN_TIDY_UP='NO_RMAN_TIDY_UP'
 
 echo "Logging to              : $LOGFILE"
 echo "Start                   : $START_DATE"
