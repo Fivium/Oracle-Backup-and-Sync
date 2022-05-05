@@ -39,9 +39,9 @@ function do_rsync {
     if [ "$DAY_RSYNC_RUN_COUNT" -eq "1" ]
     then
         echo "RSYNC with checksum" >> "$LOG_TO_FILE"
-        rsync -av -e "ssh -i ${CERT_LOCATION}" --checksum --stats --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
+        rsync -avz -e "ssh -i ${CERT_LOCATION}" --checksum --stats --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
     else
-        rsync -av -e "ssh -i ${CERT_LOCATION}"                    --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
+        rsync -avz -e "ssh -i ${CERT_LOCATION}"                    --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
     fi
 
     log_timestamp "Finished $DESC"
