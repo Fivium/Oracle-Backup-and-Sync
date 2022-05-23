@@ -100,7 +100,7 @@ EOF
         fi
     fi
     echo " "
-    echo "End       : `date`"
+    echo "Command run finished : `date`"
     echo " "
 
 }
