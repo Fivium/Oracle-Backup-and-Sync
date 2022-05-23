@@ -62,7 +62,7 @@ BEGIN
                  sequence#
             FROM
                  v$archived_log a
-            JOIN v$database     d ON d.activation# = a.activation#
+            JOIN v$database     d ON d.resetlogs_change# = a.resetlogs_change#
             WHERE
                 status = 'A'
           )
@@ -84,7 +84,7 @@ BEGIN
                sequence#
           FROM
                v$archived_log a
-          JOIN v$database     d ON d.activation# = a.activation#
+          JOIN v$database     d ON d.resetlogs_change# = a.resetlogs_change#
           WHERE
               status = 'A'
         )
