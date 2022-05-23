@@ -49,13 +49,18 @@ function run {
     echo "TEST|EXEC : $2"
     echo "CMD args  : $#"
     echo "Start     : `date`"
+    echo " "
+    echo "--CMD------------------------------"
     echo "$3"
+    
     if [ -n "$4" ]; then echo "$4"; fi
     if [ -n "$5" ]; then echo "$5"; fi
     if [ -n "$6" ]; then echo "$6"; fi
     if [ -n "$7" ]; then echo "$7"; fi
     if [ -n "$8" ]; then echo "$8"; fi
-    echo ""
+    
+    echo "--END-CMD--------------------------"
+    echo " "
 
     if [ "$2" = "EXEC" ]; then
         #
@@ -95,6 +100,9 @@ EOF
         fi
     fi
     echo " "
+    echo "End       : `date`"
+    echo " "
+
 }
 
 TEST_EXEC=$2
