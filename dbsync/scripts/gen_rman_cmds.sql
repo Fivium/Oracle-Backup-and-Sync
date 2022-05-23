@@ -77,17 +77,19 @@ BEGIN
     MAX(sequence#) INTO l_max_cataloged_sequence
   FROM
     (
-      SELECT sequence# FROM v$backup_archivelog_details
+        SELECT
+             sequence#
+        FROM
+             v$backup_archivelog_details ba
+        JOIN v$database     d ON d.resetlogs_change# = ba.resetlogs_change#
       UNION
-        (
-          SELECT
-               sequence#
-          FROM
-               v$archived_log a
-          JOIN v$database     d ON d.resetlogs_change# = a.resetlogs_change#
-          WHERE
-              status = 'A'
-        )
+        SELECT
+            sequence#
+        FROM
+            v$archived_log a
+        JOINv$database     d ON d.resetlogs_change# = a.resetlogs_change#
+        WHERE
+            status = 'A'
     );
 
   p('#');
