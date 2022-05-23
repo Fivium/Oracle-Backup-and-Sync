@@ -22,10 +22,8 @@ DECLARE
   v_msg    VARCHAR(100);
   v_msg2    VARCHAR(100);
 
-
-
-
   PROCEDURE p(p_str VARCHAR2)  IS BEGIN DBMS_OUTPUT.PUT_LINE(p_str); END;
+  
 BEGIN
   --
   -- Current applied log
@@ -93,38 +91,36 @@ BEGIN
     );
 
   p('#');
+  p('#');
   p('# Last applied log sequence : '||l_database_last_log_applied);
   p('# We can apply to           : '||l_log_sequence_we_can_apply);
   p('# Last in the catalog       : '||l_max_cataloged_sequence);
-  p('# ==============================================================');
 
   CASE
     WHEN  l_max_cataloged_sequence > l_log_sequence_we_can_apply THEN
     
       v_msg := l_log_sequence_we_can_apply;
-      v_msg2 := '# GAPS IN ARCHIVELOGS DETECTED. Maximum sequence without gaps to be applied';
-      p(v_msg2);
-      p('run{' );
-      p('set until sequence' || ' ' || v_msg || ';');
+      v_msg2 := 'GAPS IN ARCHIVELOGS DETECTED. Maximum sequence without gaps to be applied';
 
     WHEN l_log_sequence_we_can_apply = l_log_sequence_we_can_apply THEN
     
       v_msg := l_max_cataloged_sequence;
-      v_msg2 := '# No lag detected latest archivelog recovery to be applied';
-      p(v_msg2);
-      p('run{' );
-      p('set until sequence' || ' ' ||  TO_CHAR(TO_NUMBER(v_msg)+1) || ';');
+      v_msg := TO_CHAR(TO_NUMBER(v_msg)+1);
+      v_msg2 := 'No lag detected latest archivelog recovery to be applied';
 
     WHEN  l_log_sequence_we_can_apply IS NULL THEN
     
      l_log_sequence_we_can_apply_n := COALESCE (l_log_sequence_we_can_apply,l_database_last_log_applied);
      v_msg := l_log_sequence_we_can_apply_n;
-     v_msg2 := '#Cannot find valid archivelog to proceed';		
-     p(v_msg2);
-     p('run{' );
-     p('set until sequence' || ' ' || v_msg || ';');
+     v_msg2 := 'Cannot find valid archivelog to proceed';		
 
   END CASE;
+  
+  p('#');
+  p('# '||v_msg2);
+  p('#');
+  p('run{' );
+  p('set until sequence' || ' ' || v_msg || ';');
 
 END;
 /
