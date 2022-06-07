@@ -204,13 +204,14 @@ $CF_CTL_STR
 $BACKUP_ARCHIVELOGS_STR
 delete noprompt obsolete;
 backup device type disk format '${BASE_FORMAT}_controlfile_${TAIL_FORMAT}' current controlfile tag='controlfile_${DATE_STR}';
+}
+run{
 backup device type disk format '${BASE_FORMAT}_spfile_${TAIL_FORMAT}' spfile tag='spfile_${DATE_STR}';
 }
 list backup summary;
 END_CMD
 
 fi
-
 
 #
 # Do the backup for dbs that does not have TRUE on the skip parameter
