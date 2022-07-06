@@ -7,7 +7,7 @@ fi
 
 clear
 # User specific environment and startup programs
-ORACLE_BASE=/u01/app/oracle
+ORACLE_BASE=/oracle
 $HOME/profiles/create_db_aliases.pl
 . $HOME/db_aliases.sh
 
