@@ -22,10 +22,11 @@ sub fmt{
     return "\033[33;${col_num}m$str\033[0m";
 }
 #
-# 
+#
 #
 my $backups_base_dir   = "";
 my $using_config_file;
+my $compress = "";
 #
 # Backup type
 #
@@ -33,9 +34,10 @@ my $backup_type='';
 my $rman_channels='';
 
 GetOptions (
-    "type=s"          => \$backup_type  
+    "type=s"          => \$backup_type
 ,   "rman_channels=s" => \$rman_channels
 ,   "base_dir=s"      => \$backups_base_dir
+,   "compress=s"      => \$compress
 );
 #
 # Check inputs
@@ -43,19 +45,22 @@ GetOptions (
 my $full_bk  = 'FULL_BACKUP';
 my $archives = 'ARCHIVELOGS_ONLY';
 my $crosscheck = 'CROSSCHECK';
-my $usage    = "USAGE : backup_all_dbs.pl --type <$full_bk|$archives|$crosscheck> --rman_channels <INT> --base_dir <Base backup dir>\n\n";
+my $usage    = "USAGE : backup_all_dbs.pl --type <$full_bk|$archives|$crosscheck> --rman_channels <INT> --compress <RMAN|ZIP|NOCOMPRESS> --base_dir <Base backup dir>\n\n";
 
 my $datestring = localtime();
-print "Started at $datestring\n";
+print "\nStarted at $datestring\n\n";
 
-print "Backup base dir         : $backups_base_dir\n";
+print "Global Options\n";
+print "==============\n\n";
+
+print "Backup base dir          : $backups_base_dir\n";
 if( !-d $backups_base_dir or $backups_base_dir eq '' ){
     print "\nBase directory error\n\n";
     print $usage;
     exit 1;
 }
 
-print "Backup type             : $backup_type\n";
+print "Backup type              : $backup_type\n";
 
 if( $backup_type ne $full_bk and $backup_type ne $archives and $backup_type ne $crosscheck or $backup_type eq '' ){
     print "\ntype not in $full_bk , $archives or $crosscheck\n\n";
@@ -63,13 +68,21 @@ if( $backup_type ne $full_bk and $backup_type ne $archives and $backup_type ne $
     exit 2;
 }
 
-print "RMAN Channels           : $rman_channels\n";
+print "RMAN Channels            : $rman_channels\n";
 
 if( $rman_channels eq '' ){
-    print "\nrman channels not int or missing\n\n"; 
+    print "\nrman channels not int or missing\n\n";
     print $usage;
     exit 3;
-}  
+}
+
+print "COMPRESS                 : $compress\n";
+
+if( $compress eq '' ){
+    print "\ncompression option missing\n\n";
+    print $usage;
+    exit 3;
+}
 #
 # Directories
 #
@@ -91,7 +104,7 @@ if( -f $config_file ){
     $using_config_file = 0;
 }
 print "\n";
-     
+
 my $filename       = '/etc/oratab';
 my $i;
 my $sync_to_str    = '';
@@ -124,14 +137,18 @@ while (my $row = <$fh>) {
             my $cmd = "ps -aef | grep -v grep | grep -i smon_$sid";
             if(`$cmd`) {
                 print fmt('Running','green') . " - Start Backup \n";
+                print "--------------------------------\n\n";
                 #
                 # Get the sync to cmd options
                 #
                 if( $using_config_file ){
                     $sync_to_str = '';
                     $sync_to_str = sync_options($sid,$config_xml_doc);
-                    print "Sync options : $sync_to_str \n";
+                    print "Sync/Skip    : $sync_to_str \n";
                     $zip_option_str = config_option( $sid, 'compression', $config_xml_doc, 'c' );
+                    if( !$zip_option_str ){
+                        $zip_option_str = '-c '.$compress;
+                    }
                     print "Compression  : $zip_option_str\n";
                 }else{
                     $sync_to_str    = '';
@@ -140,41 +157,39 @@ while (my $row = <$fh>) {
                 #
                 # Backup
                 #
-                my $bk_cmd = "$backup_scripts_dir/db_backup.sh -s $sid -b $backups_base_dir -t $backup_type -p $rman_channels" . $zip_option_str . ' ' . $sync_to_str;
+                my $bk_cmd = "$backup_scripts_dir/db_backup.sh -s $sid -b $backups_base_dir -t $backup_type -p $rman_channels" . ' ' . $zip_option_str . ' ' . $sync_to_str;
 
-
-
-
-                print "Running      : $bk_cmd\n\n";
+                print "\n";
+                print "Running      : $bk_cmd\n";
                 print "Logs in      : $backups_base_dir/logs\n\n";
                 my $start = time;
                 if(`$bk_cmd`) {
                     #
                     # Check return code
                     #
-           
+
                     #
                     # Check backup using sql
                     #
-            
+
                     #
                     # Backup info
                     #
                     my $duration = time - $start;
-                    print "Time takes (secs)  : $duration\n\n";
+                    print "Time taken (secs)  : $duration\n\n";
 
                 }else{
                     print fmt('BACKUP FAILED!', 'red') . "\n";
                 }
             }else{
-                print "DONT BACKUP $sid - Database " . fmt('NOT RUNNING', 'red') . "\n"; 
+                print "DONT BACKUP $sid - Database " . fmt('NOT RUNNING', 'red') . "\n";
             }
-        }        
+        }
     }
 }
 
 $datestring = localtime();
-print "Finished at $datestring\n";
+print "Finished at $datestring\n\n";
 
 close $fh;
 
@@ -186,7 +201,7 @@ sub xpath{
 sub config_option{
     my ($sid, $element, $xml_doc, $option_when_found) = @_;
     my $option = '';
-    
+
     $option = $xml_doc->findvalue( xpath( $sid, $element ) );
 
     if( $option ne '' ){ $option =  " -$option_when_found $option"; }
@@ -204,6 +219,8 @@ sub sync_options{
     $sync_str .= ' ' . config_option( $sid, 'sync_to_2'    , $xml_doc, 'g' );
     $sync_str .= ' ' . config_option( $sid, 'sync_to_2_dir', $xml_doc, 'h' );
     $sync_str .= ' ' . config_option( $sid, 'skip', $xml_doc, 'm' );
+
+    $sync_str =~ s/^\s+//;
 
     return $sync_str;
 };
