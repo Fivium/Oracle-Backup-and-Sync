@@ -1,5 +1,5 @@
 --
--- $Id$
+-- Generate the rman script for recovery
 --
 set pagesize 0
 set heading off
@@ -15,12 +15,12 @@ spool &4
 
 SET SERVEROUTPUT ON
 DECLARE
-  l_database_last_log_applied INT;
-  l_log_sequence_we_can_apply INT;
-  l_max_cataloged_sequence    INT;
+  l_database_last_log_applied   INT;
+  l_log_sequence_we_can_apply   INT;
+  l_max_cataloged_sequence      INT;
   l_log_sequence_we_can_apply_n INT;
-  v_msg    VARCHAR(100);
-  v_msg2    VARCHAR(100);
+  v_msg                         VARCHAR(100);
+  v_msg2                        VARCHAR(100);
 
   PROCEDURE p(p_str VARCHAR2)  IS BEGIN DBMS_OUTPUT.PUT_LINE(p_str); END;
   
