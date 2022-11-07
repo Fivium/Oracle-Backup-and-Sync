@@ -39,6 +39,8 @@ function do_rsync {
     if [ "$DAY_RSYNC_RUN_COUNT" -eq "1" ]
     then
         echo "RSYNC with checksum" >> "$LOG_TO_FILE"
+        echo "If there are a lot of archivelogs, then this may take a long time" >> "$LOG_TO_FILE"
+        echo "You may want to comment this out if it causes too much lag" >> "$LOG_TO_FILE"
         rsync -avz -e "ssh -i ${CERT_LOCATION}" --checksum --stats --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
     else
         rsync -avz -e "ssh -i ${CERT_LOCATION}"                    --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
