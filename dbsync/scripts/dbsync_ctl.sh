@@ -195,8 +195,9 @@ echo ""
 echo "Delete any corrupt archivelogs"
 echo ""
 
-grep -B 1 -i corrupted "$LOGFILE"                    | grep 'File Name' | awk '{print $3}' | sort -u | grep '.arc' | grep -v '.arc.gz' | sed -e 's/File Name: //g' | xargs rm -v
-grep -B 1 "Foreign database file DBID: 0" "$LOGFILE" | grep 'File Name' | awk '{print $3}' | sort -u | grep '.arc' | grep -v '.arc.gz' | sed -e 's/File Name: //g' | xargs rm -v
+grep -B 1 -i corrupted "$LOGFILE"                    | grep 'File Name'    | awk '{print $3}' | sort -u | grep '.arc' | grep -v '.arc.gz' | sed -e 's/File Name: //g' | xargs rm -v
+grep -B 1 "Foreign database file DBID: 0" "$LOGFILE" | grep 'File Name'    | awk '{print $3}' | sort -u | grep '.arc' | grep -v '.arc.gz' | sed -e 's/File Name: //g' | xargs rm -v
+grep -A 1 -i 'log corruption' "$LOGFILE"             | grep 'archived log' | awk '{print $4}' | xargs rm -v
 
 PRIMARY_LOGFILE_DIR="${PRIMARY_LOGFILE_BASE_DIR}/${STANDBY_SERVER}__${ORASID}"
 
