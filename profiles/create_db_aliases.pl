@@ -57,7 +57,7 @@ while (my $row = <$fh>) {
             $color       = 'green';
         }
         $running_chk = fmt( $running_chk, $color );
-        print $fh2 "echo \"  ".sprintf( '%-5s', $profile_name )." - set env for ".sprintf( '%-10s', $sid )." - $running_chk\" \n";
+        print $fh2 "echo \"  ".sprintf( '%-5s', $profile_name )." - set env for ".sprintf( '%-12s', $sid )." - $running_chk\" \n";
         $cmd = "alias $profile_name='. $profile_dir/db_profile $sid'";
         print $fh2 "$cmd\n";
     }
