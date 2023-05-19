@@ -133,7 +133,7 @@ SELECT
      f.file#                         ||
      ' to "&file_path'               || '/' ||
      t.name                          || '_' ||
-     ltrim( to_char( rank() over (partition by t.name order by f.file#), '00') ) ||
+     ltrim( to_char( rank() over (partition by t.name order by f.file#), '000') ) ||
      '.dbf";' ts_file
 FROM
      v$datafile   f
