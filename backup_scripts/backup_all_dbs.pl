@@ -157,7 +157,7 @@ while (my $row = <$fh>) {
                 #
                 # Backup
                 #
-                my $bk_cmd = "$backup_scripts_dir/db_backup.sh -s $sid -b $backups_base_dir -t $backup_type -p $rman_channels" . ' ' . $zip_option_str . ' ' . $sync_to_str;
+                my $bk_cmd = "$backup_scripts_dir/db_backup.sh -s $sid -b $backups_base_dir -t $backup_type -c $compress -p $rman_channels" . ' ' . $zip_option_str . ' ' . $sync_to_str;
 
                 print "\n";
                 print "Running      : $bk_cmd\n";
