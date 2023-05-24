@@ -32,15 +32,18 @@ BEGIN
     sequence# INTO l_database_last_log_applied 
   FROM (
     SELECT
-      min (a.sequence#) sequence#, 
-      min (b.checkpoint_change#) 
+        min (a.sequence#) sequence#, 
+        min (b.checkpoint_change#) 
     FROM 
-      v$archived_log a, 
-      v$datafile     b
+        v$archived_log a, 
+        v$datafile     b
     WHERE
-      b.checkpoint_change# BETWEEN first_change# AND next_change# AND ROWNUM <=1 
+        b.checkpoint_change# BETWEEN first_change# 
+    AND next_change#     
+    AND ROWNUM   <= 1
+    AND a.status  = 'A'
     GROUP BY
-      a.sequence#
+        a.sequence#
   );
   --
   -- What can we apply too
