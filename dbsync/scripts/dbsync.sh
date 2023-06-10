@@ -362,4 +362,4 @@ fi
 # Check the lag
 #
 msg 'Check the standby lag'
-run 'SQL' $TEST_EXEC "@$RESTORE_SCRIPTS_DIR/standby_lag.sql" ik
+run 'SQL' $TEST_EXEC "@$RESTORE_SCRIPTS_DIR/standby_lag.sql"
