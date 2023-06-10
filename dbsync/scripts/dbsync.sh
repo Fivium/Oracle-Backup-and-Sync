@@ -330,10 +330,6 @@ run 'SQL' 'EXEC' "@$RESTORE_SCRIPTS_DIR/gen_rman_cmds.sql $FULL_ROLLFORWARD $OPE
 msg 'Restore the database, then recover up latest redo'
 run 'OS' $TEST_EXEC \
     "$ORACLE_HOME/bin/rman target=/ cmdfile=$RMAN_CMD_FILE"
-#
-# Check the lag
-#
-run 'SQL' $TEST_EXEC \ "@$RESTORE_SCRIPTS_DIR/standby_lag.sql"
     
 if [ "$RMAN_TIDY_UP" = "RMAN_TIDY_UP" ]
 then
@@ -362,3 +358,8 @@ then
         
 fi
 
+#
+# Check the lag
+#
+msg 'Check the standby lag'
+run 'SQL' $TEST_EXEC "@$RESTORE_SCRIPTS_DIR/standby_lag.sql" ik
