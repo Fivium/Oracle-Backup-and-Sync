@@ -1,0 +1,13 @@
+ USERID=<USER>/<PW>
+ DIRECTORY=full_export_dir
+ DUMPFILE=expdp_full.dmp.%U
+ LOGFILE=expdp_full.log
+ PARALLEL=1
+ FULL=y
+ EXCLUDE=STATISTICS
+ FLASHBACK_TIME=SYSTIMESTAMP
+ REUSE_DUMPFILES=Y
+ #
+ # Tables to take no data from
+ #
+QUERY=<SCHEMA>.<TABLE_NAME>:"WHERE 1=2"
