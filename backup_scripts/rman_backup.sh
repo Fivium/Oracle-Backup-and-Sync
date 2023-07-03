@@ -202,7 +202,7 @@ show all;
 backup device type disk format '${BASE_FORMAT}_database_${TAIL_FORMAT}' database tag='datafiles_${DATE_STR}';
 $CF_CTL_STR
 $BACKUP_ARCHIVELOGS_STR
-delete noprompt obsolete;
+delete noprompt backup completed before 'SYSDATE-12/24';
 backup device type disk format '${BASE_FORMAT}_controlfile_${TAIL_FORMAT}' current controlfile tag='controlfile_${DATE_STR}';
 }
 list backup summary;
