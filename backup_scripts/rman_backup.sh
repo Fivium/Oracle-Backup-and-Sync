@@ -153,7 +153,7 @@ else
 fi
 
 CONF_PARALLELISM_STR="configure device type disk parallelism ${RMAN_PROCESSES} backup type to ${RMAN_COMPRESSION}backupset;"
-BACKUP_ARCHIVELOGS_STR="backup device type disk format '${BASE_FORMAT}_archivelogs_${TAIL_FORMAT}' archivelog all delete input $DELETE_ARCH tag='archivelogs_${DATE_STR}';"
+BACKUP_ARCHIVELOGS_STR="backup device type disk format '${BASE_FORMAT}_archivelogs_${TAIL_FORMAT}' archivelog all $DELETE_ARCH tag='archivelogs_${DATE_STR}';"
 
 if [ "$DEL_POLICY" =  "$DEL_ALL_BEFORE" ]
 then
