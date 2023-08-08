@@ -309,6 +309,11 @@ if [ "$OPEN_NOOPEN" = 'OPEN_READ_ONLY' ]; then
     run 'SQL' $TEST_EXEC "startup mount;"
 fi
 #
+# Wait for any rsync processes to finish
+#
+msg 'Wait for any in-progress archivelog copies'
+$RESTORE_SCRIPTS_DIR/wait_for_rsync_process_to_finish.sh $BACKUP_FILES_DIR/$UPPER_DB_NAME
+#
 # Catalog the new backup
 #
 msg 'Catalog new backup in the controlfile'
