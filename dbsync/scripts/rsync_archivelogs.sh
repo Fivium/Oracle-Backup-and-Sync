@@ -66,7 +66,10 @@ log_timestamp START
 #
 SYNC_TO_DIR='<REMOTE_BACKUP_DIR>'
 do_rsync '<FRA_PATH>/archivelog/*' "$SYNC_TO_DIR"
-do_rsync '<BACKUP_PATH>/<SID>_backup_archivelogs_*' "$SYNC_TO_DIR"
+#
+# Sync archivelog backups
+#
+do_rsync '<BACKUP_PATH>/<SID>_backup_archivelogs_*' "${SYNC_TO_DIR}/archivelog_backups"
 #
 # Trim logfile
 #
