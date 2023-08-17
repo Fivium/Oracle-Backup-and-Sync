@@ -1,4 +1,13 @@
 #!/bin/bash
+#
+# This is a cpu saturation test 
+#
+if [ $# -ne 2 ]
+then
+    echo "Wrong argument count, Usage:  pfib.sh <fibonacci_series_calculations> <number_of_threads_to_run_on>"
+    echo "eg time ./pfib.sh 300000 4"
+    exit 1
+fi
 
 # Static input for N
 N=$1
