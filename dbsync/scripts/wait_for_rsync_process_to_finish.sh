@@ -44,7 +44,7 @@ do
    echo ""
    echo "rsync to $DESTINATION_PATH processes running : $RSYNC_PROCESS_COUNT"
    echo ""
-   ls -ltrha ${DESTINATION_PATH} | awk '$9 ~ /^\.[a-zA-Z0-9]/'
+   find ${DESTINATION_PATH} -type f -iname ".*" -ls | awk '{print $7" bytes "$11}'
    echo ""
    echo "wait a $SLEEP_SECONDS seconds for this to finish and then check again..."
    sleep $SLEEP_SECONDS
