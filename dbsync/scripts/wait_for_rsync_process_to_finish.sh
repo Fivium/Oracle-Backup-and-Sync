@@ -46,7 +46,7 @@ do
    echo ""
    find ${DESTINATION_PATH} -type f -iname ".*" -ls | awk '{print $7" bytes "$11}'
    echo ""
-   echo "wait a $SLEEP_SECONDS seconds for this to finish and then check again..."
+   echo "wait $SLEEP_SECONDS seconds for this to finish and then check again..."
    sleep $SLEEP_SECONDS
    SET_RSYNC_PROCESS_COUNT
 done
