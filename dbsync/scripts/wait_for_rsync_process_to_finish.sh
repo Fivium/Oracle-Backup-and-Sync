@@ -32,7 +32,7 @@ function SET_RSYNC_PROCESS_COUNT()
     # The grep -v is remove processes syncing to further subdirectories
     # eg $DESTINATION_PATH/archivelog_backups
     #
-    CHECK_PROCESS_CMD="ps -ef | grep 'rsync --server' | grep $DESTINATION_PATH | grep -v '${DESTINATION_PATH}.*/'"
+    CHECK_PROCESS_CMD="ps -ef | grep 'rsync --server' | grep $DESTINATION_PATH | grep -v '${DESTINATION_PATH}.*/[a-zA-Z0-9]\+'"
     RSYNC_PROCESS_COUNT=$(eval "$CHECK_PROCESS_CMD | wc -l")
     eval $CHECK_PROCESS_CMD
 }
@@ -43,6 +43,8 @@ while [ $RSYNC_PROCESS_COUNT -gt 0 ]
 do
    echo ""
    echo "rsync to $DESTINATION_PATH processes running : $RSYNC_PROCESS_COUNT"
+   echo ""
+   ls -ltrha ${DESTINATION_PATH} | awk '$9 ~ /^\.[a-zA-Z0-9]/'
    echo ""
    echo "wait a $SLEEP_SECONDS seconds for this to finish and then check again..."
    sleep $SLEEP_SECONDS
