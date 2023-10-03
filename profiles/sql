@@ -8,7 +8,7 @@
 # Check smon is up
 #
 export SMON="smon_$ORACLE_SID"
-TEST=`ps -ef |grep $SMON|grep -v grep|wc -l`
+TEST=`ps -ef |grep "${SMON}\$"|grep -v grep|wc -l`
 SCRIPT_PATH="$HOME/profiles"
 
 if [ "$TEST" = 0 ]; then
