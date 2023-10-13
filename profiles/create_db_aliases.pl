@@ -33,7 +33,21 @@ open(my $fh2, '>>', $aliases_file) or die "Could not open file '$aliases_file' $
 #
 system("cp $aliases_base $aliases_file");
 #
-# Look through the alertlog, then adding new aliases for each db
+# Find the longest sid length
+#
+while (my $row = <$fh>) {
+    chomp $row;
+    if ($row =~ /.*:\/.*:[Y,N]/){
+        my ($sid,$oracle_home,$auto_start) = split /:/, $row;
+        if (length($sid)>$longest_sid_length) {
+            $longest_sid_length = length($sid);
+        }
+    }
+}
+$sid_padding = '%-'.$longest_sid_length.'s';
+seek $fh,0,0;
+#
+# Look through the oratab, then adding new aliases for each db
 #
 while (my $row = <$fh>) {
     chomp $row;
@@ -51,13 +65,13 @@ while (my $row = <$fh>) {
         #
         my $running_chk = 'NOT RUNNING';
         my $color       = 'red';
-        my $cmd         = "ps -aef | grep -v grep | grep -i smon_${sid}\$";
+        my $cmd         = "ps -aef | grep -v grep | grep -i smon_$sid";
         if(`$cmd`) {
             $running_chk = 'RUNNING';
             $color       = 'green';
         }
         $running_chk = fmt( $running_chk, $color );
-        print $fh2 "echo \"  ".sprintf( '%-5s', $profile_name )." - set env for ".sprintf( '%-12s', $sid )." - $running_chk\" \n";
+        print $fh2 "echo \"  ".sprintf( '%-5s', $profile_name )." - set env for ".sprintf( $sid_padding, $sid )." - $running_chk\" \n";
         $cmd = "alias $profile_name='. $profile_dir/db_profile $sid'";
         print $fh2 "$cmd\n";
     }
@@ -66,4 +80,5 @@ print $fh2 "echo \"--\"\n";
 system("chmod 700 $aliases_file");
 close $fh;
 close $fh2;
+
 
