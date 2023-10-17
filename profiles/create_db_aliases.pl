@@ -65,7 +65,7 @@ while (my $row = <$fh>) {
         #
         my $running_chk = 'NOT RUNNING';
         my $color       = 'red';
-        my $cmd         = "ps -aef | grep -v grep | grep -i smon_$sid";
+        my $cmd         = "ps -aef | grep -v grep | grep -i smon_${sid}\$";
         if(`$cmd`) {
             $running_chk = 'RUNNING';
             $color       = 'green';
