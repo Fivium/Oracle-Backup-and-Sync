@@ -19,11 +19,13 @@ sub fmt{
     return "\033[33;${col_num}m$str\033[0m";
 }
 
-my $filename     = '/etc/oratab';
-my $ora_home     = '/home/oracle';
-my $aliases_file = "$ora_home/db_aliases.sh";
-my $profile_dir  = "$ora_home/profiles";
-my $aliases_base = "$profile_dir/aliases_base.sh";
+my $filename           = '/etc/oratab';
+my $ora_home           = '/home/oracle';
+my $aliases_file       = "$ora_home/db_aliases.sh";
+my $profile_dir        = "$ora_home/profiles";
+my $aliases_base       = "$profile_dir/aliases_base.sh";
+my $longest_sid_length = 0;
+my $sid_padding;
 my $i;
 
 open(my $fh , '<' , $filename)     or die "Could not open file '$filename' $!";
