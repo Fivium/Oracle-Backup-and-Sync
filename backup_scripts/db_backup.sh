@@ -246,7 +246,7 @@ if [ "$BACKUP_TYPE" != "CROSSCHECK" ]; then
     #
     # Check there is enough space for the backup
     #
-    $BASE_DIR/scripts/enough_space.sh $ORASID $BASE_DIR
+    $BASE_DIR/scripts/enough_space.sh $ORASID "${BASE_DIR}/files"
     RETURN_VAL=$?
     if [ $RETURN_VAL -ne 0 ]; then
         echo "Not enough space"
