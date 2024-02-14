@@ -55,7 +55,7 @@ function do_rsync {
 #
 # Exit if backup already running
 #
-RUNNING=`ps -ef | grep "$0 $1" | grep -v grep | wc -l`
+RUNNING=`ps -ef | grep "$0 $1 $2" | grep -v grep | wc -l`
 
 if [ $RUNNING -gt 2 ]
 then
