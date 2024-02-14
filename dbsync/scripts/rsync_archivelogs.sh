@@ -1,17 +1,32 @@
 #!/bin/bash
 
-# - This is better than doing it via backup
-# - Add parameter db
-#     archive_lag_target = 180 ( for 3 minute max lag )
-# - Add crontab
-#     * * * * * <SCRIPT_DIR>/rsync_archivelogs.sh
-# - Set in RMAN ( this will keep a copy in the FRA for rsync to standby )
-#     CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DISK;
-
+echo "-----------"
 echo "Rsync files"
+echo "-----------"
 
-LOG_TO_FILE='<LOG_DIR>/rsync_achivelogs.log'
-CERT_LOCATION='<CERT_FILE>'
+if [ $# -lt 1 ]
+then
+    echo "Expected 1 args got $#"
+    echo "Error - usage       : $0 <SID> <BOTH|ARCHIVELOGS|BACKUP_ARCHIVELOGS>"
+    echo "Default copy option : BOTH"
+    exit 1
+fi
+
+SID=${1}
+COPY_OPTION=$2
+if [ -z "${COPY_OPTION}" ]; then
+    COPY_OPTION='BOTH'
+fi
+
+echo "SID         : $SID"
+echo "COPY_OPTION : $COPY_OPTION"
+
+LOG_TO_FILE="/oracle/backups/logs/rsync_${COPY_OPTION}_${SID}.log"
+
+echo "LOG         : $LOG_TO_FILE"
+echo ""
+
+CERT_LOCATION='<CERT_LOCATION'
 DAY_STR=`date +%Y-%m-%d`
 
 function log_timestamp {
@@ -21,42 +36,31 @@ function log_timestamp {
     echo " " >> "$LOG_TO_FILE"
 }
 
-COPY_TO_SERVER='<STANDBY_SERVER>'
+COPY_TO_SERVER='<COPY_TO_SERVER>'
 
 function do_rsync {
 
     DESC="syncing files from $1 to ${COPY_TO_SERVER}:${2}"
-    
+
     echo "$DESC" >> "$LOG_TO_FILE"
 
     DAY_RSYNC_RUN_COUNT=`grep "START $DAY_STR" "$LOG_TO_FILE" | wc -l`
 
     echo "RSYNC day run count : $DAY_RSYNC_RUN_COUNT" >> "$LOG_TO_FILE"
-    #
-    # We want to do a checksum transfer
-    # at the start of the day
-    #
-    if [ "$DAY_RSYNC_RUN_COUNT" -eq "1" ]
-    then
-        echo "RSYNC with checksum" >> "$LOG_TO_FILE"
-        echo "If there are a lot of archivelogs, then this may take a long time" >> "$LOG_TO_FILE"
-        echo "You may want to comment this out if it causes too much lag" >> "$LOG_TO_FILE"
-        rsync -avz -e "ssh -i ${CERT_LOCATION}" --checksum --stats --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
-    else
-        rsync -avz -e "ssh -i ${CERT_LOCATION}"                    --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
-    fi
+
+    rsync -avz --exclude='*.arc.gz' -e "ssh -i ${CERT_LOCATION}" --update $1 ${COPY_TO_SERVER}:${2} >> $LOG_TO_FILE 2>&1
 
     log_timestamp "Finished $DESC"
 }
 #
 # Exit if backup already running
 #
-RUNNING=`ps -ef | grep "$0" | grep -v grep | wc -l`
+RUNNING=`ps -ef | grep "$0 $1" | grep -v grep | wc -l`
 
 if [ $RUNNING -gt 2 ]
 then
-    echo "`ps -ef | grep $0 | grep -v grep`"
-    echo "Running count : $RUNNING, Script $0 is running, time to exit!"
+    echo ""
+    echo "Running count : $RUNNING, Script $0 $1 is running, time to exit!"
     exit 1
 fi
 
@@ -64,15 +68,42 @@ log_timestamp START
 #
 # Sync archivelogs
 #
-SYNC_TO_DIR='<REMOTE_BACKUP_DIR>'
-do_rsync '<FRA_PATH>/archivelog/*' "$SYNC_TO_DIR"
-#
-# Sync archivelog backups
-#
-do_rsync '<BACKUP_PATH>/<SID>_backup_archivelogs_*' "${SYNC_TO_DIR}/archivelog_backups"
+SYNC_TO_DIR="/oracle/fra/${SID}/${SID}_archivelogs"
+
+if [ "$COPY_OPTION" = 'ARCHIVELOGS' ] || [ "$COPY_OPTION" = 'BOTH' ]; then
+    echo "Sync ARCHIVELOGS"
+    do_rsync "/oracle/fra/${SID}/archivelog/*" "$SYNC_TO_DIR"
+fi
+
+if [ "$COPY_OPTION" = 'BACKUP_ARCHIVELOGS' ] || [ "$COPY_OPTION" = 'BOTH' ]; then
+    #
+    # Backup archivelogs
+    #
+    echo "Sync BACKUP_ARCHIVELOGS"
+    THIS_HOST=`hostname`
+    BASE_BACKUP_DIR="/oracle/backups/files/${SID}"
+    echo "Backup base dir : $BASE_BACKUP_DIR"
+
+    if [ -d "$BASE_BACKUP_DIR" ]; then
+        echo "Backup base dir found"
+    else
+        BASE_BACKUP_DIR="${BASE_BACKUP_DIR}1"
+        echo "Backup base dir NOT found"
+        echo "Backup base dir changed to : $BASE_BACKUP_DIR"
+    fi
+
+    if [ -d "$BASE_BACKUP_DIR" ]; then
+        SYNC_FROM="${BASE_BACKUP_DIR}/${THIS_HOST}/*_backup_archivelogs_*"
+        do_rsync "$SYNC_FROM" "$SYNC_TO_DIR"
+    else
+        echo "New backup dir NOT found"
+    fi
+
+fi
 #
 # Trim logfile
 #
 TEMP_LOG_FILE="$LOG_TO_FILE.tail"
 tail -n 10000 "$LOG_TO_FILE" > "$TEMP_LOG_FILE"
 mv "$TEMP_LOG_FILE" "$LOG_TO_FILE"
+
