@@ -206,6 +206,11 @@ fi
 echo $LINE
 echo " "
 #
+# Wait for any rsync processes to finish
+#
+msg 'Wait for any in-progress rsync copies'
+$RESTORE_SCRIPTS_DIR/wait_for_rsync_process_to_finish.sh $BACKUP_FILES_DIR
+#
 # Full backup to restore?
 #
 if [ "$FULL_ROLLFORWARD" = "FULL" ]; then
@@ -312,6 +317,7 @@ fi
 # Wait for any rsync processes to finish
 #
 msg 'Wait for any in-progress archivelog copies'
+msg 'this is the second check, just before we catalog new files'
 $RESTORE_SCRIPTS_DIR/wait_for_rsync_process_to_finish.sh $BACKUP_FILES_DIR/$UPPER_DB_NAME
 #
 # Catalog the new backup
