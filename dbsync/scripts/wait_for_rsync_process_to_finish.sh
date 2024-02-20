@@ -46,16 +46,30 @@ do
    echo ""
    echo "rsync to $DESTINATION_PATH processes running : $RSYNC_PROCESS_COUNT"
    echo ""
-   find ${DESTINATION_PATH}* -type f -iname ".*" -ls | awk '{print $7" bytes "$11}'
+   AWK_CMD='{print $7" bytes "$11}'
+   CHECK_FOR_PARTIAL_FILES="find ${DESTINATION_PATH}* -type f -iname \".*\" -ls | awk '${AWK_CMD}' "
+   PARTIAL_FILES_COUNT=$(eval "$CHECK_FOR_PARTIAL_FILES | wc -l")
+   eval $CHECK_FOR_PARTIAL_FILES
+   echo ""
+   echo "Partial file count : $PARTIAL_FILES_COUNT"
    echo ""
    #
    # Do we have any excludes?
    #
    if [ -n "$EXCLUDE" ]; then
-       echo ""
        echo "EXCLUDE : $EXCLUDE"
        echo ""
-       find ${DESTINATION_PATH}* -type f -name "\.*${EXCLUDE}*" -mmin -10
+       CHECK_FOR_EXCLUDE_CMD="find ${DESTINATION_PATH}* -type f -name \"\.*${EXCLUDE}*\" -mmin -10"
+       eval $CHECK_FOR_EXCLUDE_CMD
+       EXCLUDE_COUNT=$(eval "$CHECK_FOR_EXCLUDE_CMD | wc -l")
+       echo ""
+       echo "Exclude count : $EXCLUDE_COUNT"
+       if [ $PARTIAL_FILES_COUNT -eq $EXCLUDE_COUNT ]; then
+           echo ""
+           echo "All partial files on exclude list, finish checking"
+           echo ""
+           exit 0;
+       fi
        echo ""
    fi
    #
@@ -68,3 +82,4 @@ done
 
 echo "No processes running the rsync for destination : $DESTINATION_PATH"
 echo ""
+
