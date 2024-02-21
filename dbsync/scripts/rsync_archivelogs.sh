@@ -16,6 +16,11 @@ then
 fi
 
 SID=${1}
+#
+# Make sure its upper
+#
+SID=`echo $SID | tr  "[:lower:]" "[:upper:]"`
+
 COPY_OPTION=$2
 if [ -z "${COPY_OPTION}" ]; then
     COPY_OPTION='BOTH'
