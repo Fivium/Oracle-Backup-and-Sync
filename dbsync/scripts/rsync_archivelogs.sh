@@ -1,5 +1,8 @@
 #!/bin/bash
 
+CERT_LOCATION='<CERT_LOCATION>'
+COPY_TO_SERVER='<COPY_TO_SERVER>'
+
 echo "-----------"
 echo "Rsync files"
 echo "-----------"
@@ -26,7 +29,6 @@ LOG_TO_FILE="/oracle/backups/logs/rsync_${COPY_OPTION}_${SID}.log"
 echo "LOG         : $LOG_TO_FILE"
 echo ""
 
-CERT_LOCATION='<CERT_LOCATION'
 DAY_STR=`date +%Y-%m-%d`
 
 function log_timestamp {
@@ -35,8 +37,6 @@ function log_timestamp {
     echo "$1 ${DAY_STR} ${TIME_STR}" >> "$LOG_TO_FILE"
     echo " " >> "$LOG_TO_FILE"
 }
-
-COPY_TO_SERVER='<COPY_TO_SERVER>'
 
 function do_rsync {
 
