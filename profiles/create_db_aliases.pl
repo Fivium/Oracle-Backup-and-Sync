@@ -6,7 +6,7 @@
 #
 use strict;
 use warnings;
-use Switch;
+
 sub fmt{
     my( $str, $color ) = @_;
     my $col_num;
