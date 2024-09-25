@@ -11,6 +11,12 @@ ORACLE_BASE=/oracle
 $HOME/profiles/create_db_aliases.pl
 . $HOME/db_aliases.sh
 
+export ORACLE_HOME=/oracle/product/19se/db1
+
+export PATH=${ORACLE_HOME}/perl/bin:$PATH
+
+export PERL5LIB=${ORACLE_HOME}/perl/lib
+
 PATH=$PATH:$HOME/bin:$ORACLE_HOME/bin
 
 export PATH ORACLE_BASE ORACLE_HOME
