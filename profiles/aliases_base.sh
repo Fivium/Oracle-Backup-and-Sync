@@ -1,7 +1,5 @@
 #!/bin/bash
 #
-# $Id: //Infrastructure/Database/scripts/profiles/aliases_base.sh#2 $
-#
 # Aliases
 #
 PROFILE_DIR="$HOME/profiles"
