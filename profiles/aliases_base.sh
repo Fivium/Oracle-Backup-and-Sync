@@ -4,7 +4,6 @@
 #
 PROFILE_DIR="$HOME/profiles"
 export PROFILE_DIR
-export PERL5LIB=${ORACLE_HOME}/perl/lib
 
 export PATH ORACLE_BASE ORACLE_HOME
 
