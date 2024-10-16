@@ -41,7 +41,11 @@ BEGIN
         b.checkpoint_change# BETWEEN first_change# 
     AND next_change#     
     AND ROWNUM   <= 1
-    AND a.status  = 'A'
+    --
+    -- Doesn't matter if this is not available
+    -- since it has already been applied
+    --
+    --AND a.status  = 'A'
     GROUP BY
         a.sequence#
   );
