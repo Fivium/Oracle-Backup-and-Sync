@@ -45,7 +45,9 @@ GetOptions (
 my $full_bk  = 'FULL_BACKUP';
 my $archives = 'ARCHIVELOGS_ONLY';
 my $crosscheck = 'CROSSCHECK';
-my $usage    = "USAGE : backup_all_dbs.pl --type <$full_bk|$archives|$crosscheck> --rman_channels <INT> --compress <RMAN|ZIP|NOCOMPRESS> --base_dir <Base backup dir>\n\n";
+my $enough_space_check = 'ENOUGH_SPACE_CHECK';
+
+my $usage    = "USAGE : backup_all_dbs.pl --type <$full_bk|$archives|$crosscheck|$enough_space_check> --rman_channels <INT> --compress <RMAN|ZIP|NOCOMPRESS> --base_dir <Base backup dir>\n\n";
 
 my $datestring = localtime();
 print "\nStarted at $datestring\n\n";
@@ -62,7 +64,7 @@ if( !-d $backups_base_dir or $backups_base_dir eq '' ){
 
 print "Backup type              : $backup_type\n";
 
-if( $backup_type ne $full_bk and $backup_type ne $archives and $backup_type ne $crosscheck or $backup_type eq '' ){
+if( $backup_type ne $full_bk and $backup_type ne $archives and $backup_type ne $crosscheck and $backup_type ne $enough_space_check or $backup_type eq '' ){
     print "\ntype not in $full_bk , $archives or $crosscheck\n\n";
     print $usage;
     exit 2;
