@@ -78,10 +78,9 @@ EOF
 #fi
 
 #
-# Just set a default, best guess
+# Just set a default, best guess, but we don't use os compression anymore
 #
-COMPRESSION_PERCENT=30
-
+COMPRESSION_PERCENT=100
 #
 # Check if there is enough room for the current size of the database
 # and archivelogs
@@ -137,6 +136,26 @@ bytes_to_human_readable $BUFFER_SIZE                     "5 Percent buffer      
 bytes_to_human_readable $SPACE_REQUIRED_PLUS_BUFFER      "Space required with buffer          : "
 bytes_to_human_readable $SPACE_AVAILABLE                 "Space available                     : "
 bytes_to_human_readable $DELTA                           "Free space after backup             : "
+#
+# Save info in database for alerts
+#
+sqlplus -S / as sysdba << EOF
+DROP TABLE dbamgr.backup_size_info
+/
+CREATE TABLE dbamgr.backup_size_info AS (
+  SELECT
+    SYSDATE check_datetime
+  , $DATABASE_SIZE_BYTES datafile_size_bytes
+  , $ARCHIVELOG_SIZE_BYTES archivelog_size_bytes
+  , $SPACE_REQUIRED_PLUS_BUFFER space_required_with_buffer_bytes
+  , $SPACE_AVAILABLE backup_space_available_bytes
+  , CASE WHEN $DELTA > 0 THEN 1 ELSE 0 END enough_space
+  FROM
+    DUAL
+)
+/
+EOF
+
 ## Is there enough space available?
 echo "--------------------"
 if (( $DELTA > 0 )); then
