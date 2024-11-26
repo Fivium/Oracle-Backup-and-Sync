@@ -149,7 +149,7 @@ CREATE TABLE dbamgr.backup_size_info AS (
   , $ARCHIVELOG_SIZE_BYTES archivelog_size_bytes
   , $SPACE_REQUIRED_PLUS_BUFFER space_required_with_buffer_bytes
   , $SPACE_AVAILABLE backup_space_available_bytes
-  , CASE WHEN $DELTA > 0 THEN 1 ELSE 0 END enough_space
+  , CASE WHEN $DELTA > 0 THEN 1 ELSE -1 END enough_space
   FROM
     DUAL
 )
