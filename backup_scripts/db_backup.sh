@@ -254,6 +254,11 @@ if [ "$BACKUP_TYPE" != "CROSSCHECK" ]; then
         exit 1
     fi
 fi
+
+if [ "$BACKUP_TYPE" = "ENOUGH_SPACE_CHECK" ]; then
+    log3 "Only run space check"
+    exit 0
+fi
 #
 # Run the rman script
 #
