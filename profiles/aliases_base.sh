@@ -13,6 +13,7 @@ alias sqlplus='rlwrap -i -c -f $PROFILE_DIR/sqlplus.dict sqlplus'
 alias rman='rlwrap -i -c -f $PROFILE_DIR/rman.dict $ORACLE_HOME/bin/rman'
 alias rmanc='rlwrap -i -c -f $PROFILE_DIR/rman.dict $ORACLE_HOME/bin/rman target=/'
 alias lsnrs='lsnrctl status'
+alias sbl="find /oracle/dbsync/logs/ -mmin -10 -name '*ROLLFORWARD_*.log' | xargs tail -n 10 | grep -v 'SQL' | grep -v 'log' | grep -v 'Version'"
 #alias pl='clear;$PROFILE_DIR/create_db_aliases.pl;$HOME/db_aliases.sh'
 alias pl='. ~/.bash_profile'
 echo "--"
