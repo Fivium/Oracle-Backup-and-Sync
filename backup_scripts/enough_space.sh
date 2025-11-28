@@ -12,8 +12,6 @@ if [[ -z "${PCT_FREE_BUFFER}" ]]; then
   PCT_FREE_BUFFER=$PCT_FREE_BUFFER_DEFAULT
 fi
 
-echo "PCT_FREE_BUFFER = $PCT_FREE_BUFFER"
-
 export ORACLE_SID=$1
 export ORACLE_HOME=`cat /etc/oratab|grep ^$ORACLE_SID:|cut -f2 -d':'`
 export PATH=$ORACLE_HOME/bin:$PATH
@@ -99,9 +97,9 @@ SPACE_REQUIRED=$(( $DATABASE_SIZE_BYTES + $ARCHIVELOG_SIZE_BYTES ))
 #
 SPACE_REQUIRED_WITH_COMPRESSION=$(( ${SPACE_REQUIRED}*${COMPRESSION_PERCENT}/100 ))
 #
-# Safety buffer is 5%
+# Safety buffer 
 #
-BUFFER_SIZE=$(( ${SPACE_REQUIRED_WITH_COMPRESSION}*5/100 ))
+BUFFER_SIZE=$(( ${SPACE_REQUIRED_WITH_COMPRESSION}*${PCT_FREE_BUFFER}/100 ))
 DEST_DIR=$BACKUP_DIR
 ## Get available space in DEST_DIR
 SPACE_AVAILABLE=$(df $DEST_DIR -B1 -P | awk '{print $4}' | sed -e /Available/d)
@@ -133,6 +131,9 @@ bytes_to_human_readable() {
 echo "--------------------"
 echo "Database : "$ORACLE_SID
 echo "--------------------"
+echo "--------------------"
+echo "Database : "$ORACLE_SID
+echo "--------------------"
 bytes_to_human_readable $LAST_BACKUP_SIZE                "Last backup size on disk            : "
 bytes_to_human_readable $LAST_BACKUP_SIZE_COMPRESSED     "Last backup size on disk compressed : "
 printf "Last backup compression percent     : %11s\n" "$COMPRESSION_PERCENT"
@@ -140,10 +141,16 @@ bytes_to_human_readable $DATABASE_SIZE_BYTES             "Current database size 
 bytes_to_human_readable $ARCHIVELOG_SIZE_BYTES           "Archivelog size                     : "
 bytes_to_human_readable $SPACE_REQUIRED                  "Space required                      : "
 bytes_to_human_readable $SPACE_REQUIRED_WITH_COMPRESSION "Space required with compression     : "
-bytes_to_human_readable $BUFFER_SIZE                     "5 Percent buffer                    : "
+printf "Buffer Percent                      : %11s\n" "$PCT_FREE_BUFFER"
+bytes_to_human_readable $BUFFER_SIZE                     "Buffer Size                         : "
 bytes_to_human_readable $SPACE_REQUIRED_PLUS_BUFFER      "Space required with buffer          : "
 bytes_to_human_readable $SPACE_AVAILABLE                 "Space available                     : "
-bytes_to_human_readable $DELTA                           "Free space after backup             : "
+if [[ $DELTA -lt 0 ]]; then
+    EXTRA_BYTES_NEEDED=$(( DELTA * -1 ))
+    bytes_to_human_readable $EXTRA_BYTES_NEEDED                           "Extra space needed                  : "
+else
+    bytes_to_human_readable $DELTA                           "Free space after backup             : "
+fi
 #
 # Save info in database for alerts
 #
