@@ -1,10 +1,18 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]
-then
-    echo "Wrong argument count, Usage:  enough_space.sh <ORACLE_SID> <BACKUP_TO_DIR>"
+PCT_FREE_BUFFER_DEFAULT=5
+
+if [[ $# -ne 2 && $# -ne 3 ]]; then
+    echo "Wrong argument count, Usage:  enough_space.sh <ORACLE_SID> <BACKUP_TO_DIR> [% Free Buffer (default: ${PCT_FREE_BUFFER_DEFAULT})]"
     exit 1
 fi
+
+PCT_FREE_BUFFER=$3
+if [[ -z "${PCT_FREE_BUFFER}" ]]; then
+  PCT_FREE_BUFFER=$PCT_FREE_BUFFER_DEFAULT
+fi
+
+echo "PCT_FREE_BUFFER = $PCT_FREE_BUFFER"
 
 export ORACLE_SID=$1
 export ORACLE_HOME=`cat /etc/oratab|grep ^$ORACLE_SID:|cut -f2 -d':'`
