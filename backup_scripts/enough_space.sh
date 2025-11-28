@@ -131,9 +131,6 @@ bytes_to_human_readable() {
 echo "--------------------"
 echo "Database : "$ORACLE_SID
 echo "--------------------"
-echo "--------------------"
-echo "Database : "$ORACLE_SID
-echo "--------------------"
 bytes_to_human_readable $LAST_BACKUP_SIZE                "Last backup size on disk            : "
 bytes_to_human_readable $LAST_BACKUP_SIZE_COMPRESSED     "Last backup size on disk compressed : "
 printf "Last backup compression percent     : %11s\n" "$COMPRESSION_PERCENT"
