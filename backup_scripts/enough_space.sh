@@ -122,7 +122,7 @@ bytes_to_human_readable() {
         s=$((s + 1))
     done
     SIZE_HR="$neg_sym$i$d ${S[$s]}"
-    printf "$2 %10s\n" "$SIZE_HR"
+    printf "$2 %11s\n" "$SIZE_HR"
 
 }
 
